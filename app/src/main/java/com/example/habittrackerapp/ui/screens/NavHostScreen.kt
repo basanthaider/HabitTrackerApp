@@ -13,12 +13,12 @@ fun NavHostScreen(){
     NavHost(navController = navController, startDestination ="/home" ) {
 
 
-        composable(route="/home"){
-            HomeScreen(navController)
-        }
-        composable(route="/addHabit") {
-            AddHabit(navController)
-        }
+//        composable(route="/home"){
+//            HomeScreen(navController)
+//        }
+//        composable(route="/addHabit") {
+//            AddHabit(navController)
+//        }
 
     }
 }
