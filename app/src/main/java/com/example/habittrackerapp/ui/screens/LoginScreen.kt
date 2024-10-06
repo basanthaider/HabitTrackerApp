@@ -16,10 +16,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.habittrackerapp.R
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(navController: NavHostController) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color(0xFF4A6EA8) // Background color of the screen
@@ -29,7 +31,9 @@ fun LoginScreen() {
             contentAlignment = Alignment.TopCenter
         ) {
             // Curved background shape
-            CurvedBackground(modifier = Modifier.fillMaxWidth().height(350.dp))
+            CurvedBackground(modifier = Modifier
+                .fillMaxWidth()
+                .height(350.dp))
 
             // Image that fills the entire white area
             Image(
@@ -218,5 +222,5 @@ fun CurvedImageShape() = GenericShape { size, _ ->
 @Preview(showSystemUi = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen()
+    LoginScreen(rememberNavController())
 }
