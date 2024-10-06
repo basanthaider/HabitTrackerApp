@@ -1,5 +1,9 @@
+
 package com.example.habittrackerapp.ui.screens
 
+import androidx.compose.runtime.Composable
+
+/*
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -51,4 +55,8 @@ fun ContentScreen(modifier: Modifier = Modifier, selectedIndex: Int = 0) {
         1 -> ProfileScreen()
 
     }
+}*/
+@Composable
+fun MainScreen(){
+
 }
