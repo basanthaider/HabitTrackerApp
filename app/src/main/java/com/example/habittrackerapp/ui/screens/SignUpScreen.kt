@@ -1,9 +1,13 @@
+import android.util.Log
+import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -13,9 +17,16 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.habittrackerapp.R
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun RegisterScreen(navController: NavHostController) {
+    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    val auth = FirebaseAuth.getInstance() // Moved to local variable for better clarity
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color(0xFF4A6EA8) // Background color of the screen
@@ -24,9 +35,6 @@ fun RegisterScreen(navController: NavHostController) {
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.TopCenter
         ) {
-            // Rectangular background image
-
-
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
@@ -40,8 +48,6 @@ fun RegisterScreen(navController: NavHostController) {
                     style = TextStyle(
                         fontSize = 35.sp,
                         fontWeight = FontWeight.Bold,
-
-
                         color = Color.White
                     ),
                     modifier = Modifier.padding(top = 5.dp)
@@ -53,15 +59,14 @@ fun RegisterScreen(navController: NavHostController) {
                     style = TextStyle(
                         fontSize = 16.sp,
                         color = Color.White.copy(alpha = 0.7f),
-
-                        ),
+                    ),
                     modifier = Modifier.padding(top = 4.dp, bottom = 32.dp)
                 )
 
                 // Username TextField with Icon
                 TextField(
-                    value = "",
-                    onValueChange = {},
+                    value = username, // Use the username state variable
+                    onValueChange = { username = it },
                     leadingIcon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_user), // Replace with a user icon
@@ -85,8 +90,8 @@ fun RegisterScreen(navController: NavHostController) {
 
                 // Email TextField with Icon
                 TextField(
-                    value = "",
-                    onValueChange = {},
+                    value = email,
+                    onValueChange = { email = it },
                     leadingIcon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_email), // Replace with an email icon
@@ -110,8 +115,8 @@ fun RegisterScreen(navController: NavHostController) {
 
                 // Password TextField with Icon
                 TextField(
-                    value = "",
-                    onValueChange = {},
+                    value = password,
+                    onValueChange = { password = it },
                     leadingIcon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_password), // Replace with a password icon
@@ -135,8 +140,8 @@ fun RegisterScreen(navController: NavHostController) {
 
                 // Confirm Password TextField with Icon
                 TextField(
-                    value = "",
-                    onValueChange = {},
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
                     leadingIcon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_password), // Replace with a password icon
@@ -164,15 +169,20 @@ fun RegisterScreen(navController: NavHostController) {
                     style = TextStyle(
                         fontSize = 12.sp,
                         color = Color.White.copy(alpha = 0.7f),
-
-                        ),
+                    ),
                     modifier = Modifier.padding(vertical = 16.dp),
                     lineHeight = 14.sp
                 )
 
                 // Register Button
                 Button(
-                    onClick = { /* Handle register */ },
+                    onClick = {
+                        if (password == confirmPassword) { // Check if passwords match
+                            registerUser(email, password, navController)
+                        } else {
+                           // Toast.makeText(LocalContext.current, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp)
@@ -197,11 +207,32 @@ fun RegisterScreen(navController: NavHostController) {
                         color = Color.Yellow,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(start = 4.dp)
+                            .clickable {
+                                navController.navigate("/login")
+                            }
                     )
                 }
             }
         }
     }
+}
+
+// Place the registerUser function outside the composable
+private fun registerUser(email: String, password: String, navController: NavHostController) {
+    val auth = FirebaseAuth.getInstance()
+
+    auth.createUserWithEmailAndPassword(email, password)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                // Registration successful, navigate to login or home screen
+                navController.navigate("/login")
+            } else {
+                // Handle the error (e.g., show a Snackbar with error message)
+                val errorMessage = task.exception?.message ?: "Registration failed"
+                Log.e("RegisterUser", errorMessage) // Log the error
+
+            }
+        }
 }
 
 @Preview(showSystemUi = true)

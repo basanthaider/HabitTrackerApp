@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "903830337528",
+    "project_id": "habity-8a947",
+    "storage_bucket": "habity-8a947.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:903830337528:android:55eccde7292023e726c80d",
+        "android_client_info": {
+          "package_name": "com.example.habittrackerapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWahFawZ30Wa2XCB2AyN_gbUQul6uld3w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,9 +1,14 @@
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,9 +24,22 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.habittrackerapp.R
+import androidx.compose.runtime.setValue
+
+import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.runtime.*
+
+
+
+
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
+
+    var rememberMeChecked by remember { mutableStateOf(false) }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color(0xFF4A6EA8) // Background color of the screen
@@ -78,8 +96,8 @@ fun LoginScreen(navController: NavHostController) {
 
 
                 TextField(
-                    value = "",
-                    onValueChange = {},
+                    value = email,
+                    onValueChange = { email = it },
                     leadingIcon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_email), // replace with a user icon
@@ -104,8 +122,8 @@ fun LoginScreen(navController: NavHostController) {
 
                 // Password TextField with Icon
                 TextField(
-                    value = "",
-                    onValueChange = {},
+                    value = password,
+                    onValueChange = { password = it },
                     leadingIcon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_password), // replace with a password icon
@@ -134,10 +152,11 @@ fun LoginScreen(navController: NavHostController) {
                         .padding(top = 8.dp, bottom = 16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+
                     Row {
                         Checkbox(
-                            checked = false,
-                            onCheckedChange = {}
+                            checked = rememberMeChecked,
+                            onCheckedChange = { rememberMeChecked = it }
                         )
                         Text(
                             text = "Remember me",
@@ -150,12 +169,18 @@ fun LoginScreen(navController: NavHostController) {
                         text = "Forgot Password?",
                         color = Color.White,
                         modifier = Modifier.align(Alignment.CenterVertically)
+                            .clickable {
+                                navController.navigate("/forget")
+
+                            }
                     )
                 }
 
                 // Login Button
                 Button(
-                    onClick = { /* Handle login */ },
+                    onClick = {
+                        loginUser(email, password, navController)
+                              },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp)
@@ -180,12 +205,37 @@ fun LoginScreen(navController: NavHostController) {
                         color = Color.Yellow,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(start = 4.dp)
+                            .clickable {
+                                navController.navigate("/register")
+                                // Handle the click event here
+
+                            }
                     )
                 }   // Add the rest of your form fields (username, password, login button, etc.) below
             }
         }
     }
 }
+
+// Function to handle login
+private fun loginUser(email: String, password: String, navController: NavHostController) {
+    val auth = FirebaseAuth.getInstance()
+
+    auth.signInWithEmailAndPassword(email, password)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                // Login successful, navigate to home screen
+                navController.navigate("/home")
+            } else {
+                // Handle the error (e.g., show a Snackbar with an error message)
+                val errorMessage = task.exception?.message ?: "Login failed"
+                Log.e("LoginUser", errorMessage) // Log the error
+                // Optionally, show an error message to the user
+
+            }
+        }
+}
+
 
 @Composable
 fun CurvedBackground(modifier: Modifier) {
