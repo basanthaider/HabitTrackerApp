@@ -48,11 +48,15 @@ fun NavHostScreen(){
 
 
     }){
-        NavHost(navController = navController, startDestination ="/home",
+        NavHost(navController = navController, startDestination ="/login",
             modifier = Modifier.padding(it)) {
             composable(route="/login") {
                 bottomBarVisibility= false
                 LoginScreen(navController)
+            }
+            composable(route="/forget") {
+                bottomBarVisibility= false
+               ForgotPasswordScreen(navController)
             }
             composable(route="/register") {
                 bottomBarVisibility= false
