@@ -29,6 +29,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
@@ -42,6 +44,8 @@ import com.maxkeppeler.sheets.option.models.Option
 import com.maxkeppeler.sheets.option.models.OptionConfig
 import com.maxkeppeler.sheets.option.models.OptionSelection
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,6 +58,7 @@ fun AddHabit(navController: NavHostController) {
     var selectedDays by remember { mutableStateOf(listOf<String>("Everyday")) }
     var reminderHours by remember { mutableStateOf(0) }
     var reminderMins by remember { mutableStateOf(0) }
+    var reminder by remember { mutableStateOf(LocalTime.now()) }
     var isReminder by remember { mutableStateOf(false) }
     var startFrom by remember { mutableStateOf(LocalDate.now()) }
     Box(
@@ -97,7 +102,8 @@ fun AddHabit(navController: NavHostController) {
                 selection = ClockSelection.HoursMinutes { hours, minutes ->
                     reminderHours = hours
                     reminderMins = minutes
-                    Log.d("trace", "Selected time: $hours:$minutes")
+                    reminder = LocalTime.of(hours, minutes)
+                    Log.d("trace", "Selected time: $reminder")
                 })
             Text(
                 text = "Add a New Habit",
@@ -241,7 +247,7 @@ fun AddHabit(navController: NavHostController) {
             Spacer(modifier = Modifier.weight(1f))
             Button(
                 onClick = {
-
+                    addHabit(habitName, habitDescription, selectedDays, reminder, startFrom)
                 },
                 modifier = Modifier
                     .padding(top = 16.dp)
@@ -253,5 +259,24 @@ fun AddHabit(navController: NavHostController) {
             }
         }
     }
+}
 
+fun addHabit(
+    name: String,
+    description: String,
+    repeat: List<String>,
+    reminder: LocalTime,
+    startFrom: LocalDate
+) {
+    val db = Firebase.firestore
+    val habit = hashMapOf(
+        "name" to name,
+        "description" to description,
+        "repeat" to repeat,
+        "reminder" to reminder,
+        "startFrom" to startFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+    )
+    db.collection("habits").add(habit).addOnSuccessListener {
+        Log.d("trace", "Habit added with ID: ${it.id}")
+    }
 }

@@ -29,10 +29,6 @@ import androidx.compose.runtime.setValue
 import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.runtime.*
 
-
-
-
-
 @Composable
 fun LoginScreen(navController: NavHostController) {
 
