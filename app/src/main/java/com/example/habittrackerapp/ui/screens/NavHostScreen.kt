@@ -9,10 +9,10 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,13 +29,13 @@ import androidx.navigation.compose.rememberNavController
 import com.example.habittrackerapp.utils.NavItem
 
 @Composable
-fun NavHostScreen(){
+fun NavHostScreen() {
     val navController = rememberNavController()
-    var bottomBarVisibility by remember{
+    var bottomBarVisibility by remember {
         mutableStateOf(true)
     }
-    Scaffold (bottomBar = {
-        AnimatedVisibility(visible= bottomBarVisibility ) {
+    Scaffold(bottomBar = {
+        AnimatedVisibility(visible = bottomBarVisibility) {
             NavigationBottomBar(
                 navController = navController,
                 items = listOf(
@@ -43,40 +43,42 @@ fun NavHostScreen(){
                     NavItem(label = "/profile", icon = Icons.Default.Person)
                 )
             )
-            
+
         }
 
 
-    }){
-        NavHost(navController = navController, startDestination ="/login",
-            modifier = Modifier.padding(it)) {
-            composable(route="/login") {
-                bottomBarVisibility= false
+    }) {
+        NavHost(
+            navController = navController, startDestination = "/home",
+            modifier = Modifier.padding(it)
+        ) {
+            composable(route = "/login") {
+                bottomBarVisibility = false
                 LoginScreen(navController)
             }
-            composable(route="/forget") {
-                bottomBarVisibility= false
-               ForgotPasswordScreen(navController)
+            composable(route = "/forget") {
+                bottomBarVisibility = false
+                ForgotPasswordScreen(navController)
             }
-            composable(route="/register") {
-                bottomBarVisibility= false
+            composable(route = "/register") {
+                bottomBarVisibility = false
                 RegisterScreen(navController)
             }
 
-            composable(route="/home"){
-                bottomBarVisibility= true
+            composable(route = "/home") {
+                bottomBarVisibility = true
                 HomeScreen(navController)
             }
-            composable(route="/addHabit") {
-                bottomBarVisibility=false
+            composable(route = "/addHabit") {
+                bottomBarVisibility = false
                 AddHabit(navController)
             }
-            composable(route="/editHabit"){
-                bottomBarVisibility =false
+            composable(route = "/editHabit") {
+                bottomBarVisibility = false
                 EditHabit(navController)
             }
-            composable(route="/profile") {
-                bottomBarVisibility= true
+            composable(route = "/profile") {
+                bottomBarVisibility = true
                 ProfileScreen(navController)
             }
 
@@ -84,18 +86,16 @@ fun NavHostScreen(){
     }
 
 
-
-
-
-
-
 }
+
 @Composable
-fun NavigationBottomBar(navController: NavHostController,items:List<NavItem>) {
+fun NavigationBottomBar(navController: NavHostController, items: List<NavItem>) {
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val context = LocalContext.current.applicationContext
     val currentRoute = navBackStackEntry.value?.destination?.route
-    BottomAppBar {
+    BottomAppBar(
+        containerColor = MaterialTheme.colorScheme.primary
+    ) {
         items.forEach { item ->
             NavigationBarItem(
                 selected = currentRoute == item.label,
@@ -111,8 +111,8 @@ fun NavigationBottomBar(navController: NavHostController,items:List<NavItem>) {
                 icon = { Icon(imageVector = item.icon, contentDescription = item.label) },
                 alwaysShowLabel = false,
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = androidx.compose.ui.graphics.Color.Blue,
-                    selectedTextColor = androidx.compose.ui.graphics.Color.Blue,
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
                     unselectedTextColor = androidx.compose.ui.graphics.Color.Gray,
                     unselectedIconColor = androidx.compose.ui.graphics.Color.Gray
                 )
@@ -124,6 +124,7 @@ fun NavigationBottomBar(navController: NavHostController,items:List<NavItem>) {
 
     }
 }
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun NavHostScreenPreview() {
