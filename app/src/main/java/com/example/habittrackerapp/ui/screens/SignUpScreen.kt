@@ -1,7 +1,9 @@
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,6 +13,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -19,13 +25,18 @@ import androidx.navigation.compose.rememberNavController
 import com.example.habittrackerapp.R
 import com.google.firebase.auth.FirebaseAuth
 
+
 @Composable
 fun RegisterScreen(navController: NavHostController) {
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var isPasswordVisible by remember { mutableStateOf(false) } // For password toggle
+    var isConfirmPasswordVisible by remember { mutableStateOf(false) } // For confirm password toggle
+
     val auth = FirebaseAuth.getInstance() // Moved to local variable for better clarity
+    val context = LocalContext.current
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -100,6 +111,9 @@ fun RegisterScreen(navController: NavHostController) {
                         )
                     },
                     placeholder = { Text(text = "Email address") },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Email, // Use password keyboard type
+                        imeAction = ImeAction.Next),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)
@@ -124,7 +138,22 @@ fun RegisterScreen(navController: NavHostController) {
                             tint = Color.Gray
                         )
                     },
+                    trailingIcon = {
+                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                            Icon(
+                                painter = painterResource(
+                                    id = if (isPasswordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
+                                ),
+                                contentDescription = if (isPasswordVisible) "Hide Password" else "Show Password",
+                                tint = Color.Gray
+                            )
+                        }
+                    },
                     placeholder = { Text(text = "Password") },
+                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Password, // Use password keyboard type
+                        imeAction = ImeAction.Next),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)
@@ -138,7 +167,7 @@ fun RegisterScreen(navController: NavHostController) {
                     )
                 )
 
-                // Confirm Password TextField with Icon
+                // Confirm Password TextField with Icon and toggle for visibility
                 TextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
@@ -149,7 +178,22 @@ fun RegisterScreen(navController: NavHostController) {
                             tint = Color.Gray
                         )
                     },
+                    trailingIcon = {
+                        IconButton(onClick = { isConfirmPasswordVisible = !isConfirmPasswordVisible }) {
+                            Icon(
+                                painter = painterResource(
+                                    id = if (isConfirmPasswordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
+                                ),
+                                contentDescription = if (isConfirmPasswordVisible) "Hide Password" else "Show Password",
+                                tint = Color.Gray
+                            )
+                        }
+                    },
                     placeholder = { Text(text = "Confirm password") },
+                    visualTransformation = if (isConfirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Password, // Use password keyboard type
+                        imeAction = ImeAction.Next),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)
@@ -178,9 +222,15 @@ fun RegisterScreen(navController: NavHostController) {
                 Button(
                     onClick = {
                         if (password == confirmPassword) { // Check if passwords match
-                            registerUser(email, password, navController)
+                            if (!isEmailValid(email)) { // Check if email is valid
+                                Toast.makeText(context, "Invalid email format", Toast.LENGTH_SHORT).show()
+                            } else if (!isPasswordValid(password)) { // Check if password meets criteria
+                                Toast.makeText(context, "Password must be at least 7 characters and contain a special character", Toast.LENGTH_SHORT).show()
+                            } else {
+                                registerUser(email, password, navController, context)
+                            }
                         } else {
-                           // Toast.makeText(LocalContext.current, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
                         }
                     },
                     modifier = Modifier
@@ -218,21 +268,33 @@ fun RegisterScreen(navController: NavHostController) {
 }
 
 // Place the registerUser function outside the composable
-private fun registerUser(email: String, password: String, navController: NavHostController) {
+
+
+private fun registerUser(email: String, password: String, navController: NavHostController,context: Context) {
     val auth = FirebaseAuth.getInstance()
 
     auth.createUserWithEmailAndPassword(email, password)
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                // Registration successful, navigate to login or home screen
-                navController.navigate("/login")
+                Toast.makeText( context, "Registration successful", Toast.LENGTH_SHORT).show()
+                navController.navigate("/login") {
+                    popUpTo("register") { inclusive = true } // Remove Register from back stack
+                }
             } else {
                 // Handle the error (e.g., show a Snackbar with error message)
                 val errorMessage = task.exception?.message ?: "Registration failed"
                 Log.e("RegisterUser", errorMessage) // Log the error
+                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
 
             }
         }
+}
+private fun isEmailValid(email: String): Boolean {
+    return email.contains("@") && email.contains(".")
+}
+private fun isPasswordValid(password: String): Boolean {
+    val specialCharPattern = Regex("[!@#\$%^&*(),.?\":{}|<>]") // Special character regex pattern
+    return password.length >= 7 && specialCharPattern.containsMatchIn(password)
 }
 
 @Preview(showSystemUi = true)

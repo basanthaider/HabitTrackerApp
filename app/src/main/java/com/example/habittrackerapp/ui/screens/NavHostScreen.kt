@@ -30,9 +30,12 @@ import com.example.habittrackerapp.ui.theme.Blue
 import com.example.habittrackerapp.ui.theme.DarkBlue
 import com.example.habittrackerapp.ui.theme.White
 import com.example.habittrackerapp.utils.NavItem
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun NavHostScreen() {
+    val auth = FirebaseAuth.getInstance()
+    var currentUser by remember { mutableStateOf(auth.currentUser) }
     val navController = rememberNavController()
     var bottomBarVisibility by remember {
         mutableStateOf(true)
@@ -52,7 +55,10 @@ fun NavHostScreen() {
 
     }) {
         NavHost(
-            navController = navController, startDestination = "/home",
+            //لما نخلص خالص هنحط السطرين دول متمسحهومش
+           // navController = navController,
+           // startDestination = if (currentUser != null) "home" else "login"
+            navController = navController, startDestination = "/login",
             modifier = Modifier.padding(it)
         ) {
             composable(route = "/login") {

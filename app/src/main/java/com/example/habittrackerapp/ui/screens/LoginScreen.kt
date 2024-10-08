@@ -1,9 +1,12 @@
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,6 +31,11 @@ import androidx.compose.runtime.setValue
 
 import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
@@ -35,6 +43,8 @@ fun LoginScreen(navController: NavHostController) {
     var rememberMeChecked by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isPasswordVisible by remember { mutableStateOf(false) }
+    val context= LocalContext.current
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -102,6 +112,10 @@ fun LoginScreen(navController: NavHostController) {
                         )
                     },
                     placeholder = { Text(text = "Email") },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Email, // Use email keyboard type
+                        imeAction = ImeAction.Next // Next action when done typing
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)
@@ -122,12 +136,27 @@ fun LoginScreen(navController: NavHostController) {
                     onValueChange = { password = it },
                     leadingIcon = {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_password), // replace with a password icon
+                            painter = painterResource(id = R.drawable.ic_password), // Replace with a password icon
                             contentDescription = "Password Icon",
                             tint = Color.Gray
                         )
                     },
+                    trailingIcon = {
+                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                            Icon(
+                                painter = painterResource(
+                                    id = if (isPasswordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
+                                ),
+                                contentDescription = if (isPasswordVisible) "Hide Password" else "Show Password",
+                                tint = Color.Gray
+                            )
+                        }
+                    },
                     placeholder = { Text(text = "Password") },
+                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Password, // Use password keyboard type
+                        imeAction = ImeAction.Next),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)
@@ -140,7 +169,6 @@ fun LoginScreen(navController: NavHostController) {
                         unfocusedIndicatorColor = Color.Transparent
                     )
                 )
-
                 // Remember me & Forgot Password Row
                 Row(
                     modifier = Modifier
@@ -175,7 +203,7 @@ fun LoginScreen(navController: NavHostController) {
                 // Login Button
                 Button(
                     onClick = {
-                        loginUser(email, password, navController)
+                        loginUser(email, password, navController,context)
                               },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -214,19 +242,22 @@ fun LoginScreen(navController: NavHostController) {
 }
 
 // Function to handle login
-private fun loginUser(email: String, password: String, navController: NavHostController) {
+private fun loginUser(email: String, password: String, navController: NavHostController,context:Context) {
     val auth = FirebaseAuth.getInstance()
 
     auth.signInWithEmailAndPassword(email, password)
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
+                Toast.makeText( context, "Login successful", Toast.LENGTH_SHORT).show()
                 // Login successful, navigate to home screen
-                navController.navigate("/home")
+                navController.navigate("/home"){
+                popUpTo("login") { inclusive = true }
+                }
             } else {
                 // Handle the error (e.g., show a Snackbar with an error message)
                 val errorMessage = task.exception?.message ?: "Login failed"
                 Log.e("LoginUser", errorMessage) // Log the error
-                // Optionally, show an error message to the user
+                Toast.makeText(context, "Incorrect email or password, please try again", Toast.LENGTH_SHORT).show()
 
             }
         }
