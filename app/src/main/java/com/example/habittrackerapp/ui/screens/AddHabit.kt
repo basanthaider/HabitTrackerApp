@@ -1,6 +1,9 @@
 package com.example.habittrackerapp.ui.screens
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,12 +23,14 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -37,6 +42,7 @@ import com.maxkeppeler.sheets.calendar.models.CalendarConfig
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import com.maxkeppeler.sheets.calendar.models.CalendarStyle
 import com.maxkeppeler.sheets.clock.ClockDialog
+import com.maxkeppeler.sheets.clock.models.ClockConfig
 import com.maxkeppeler.sheets.clock.models.ClockSelection
 import com.maxkeppeler.sheets.option.OptionDialog
 import com.maxkeppeler.sheets.option.models.DisplayMode
@@ -47,20 +53,25 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
+private val modifier = Modifier.padding(start = 16.dp)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddHabit(navController: NavHostController) {
     var habitName by remember { mutableStateOf("") }
+    var isHabitNameValid by remember { mutableStateOf(true) }
     var habitDescription by remember { mutableStateOf("") }
+    var isHabitDescriptionValid by remember { mutableStateOf(true) }
     val calendarState = rememberUseCaseState()
     val optionState = rememberUseCaseState()
     val timeState = rememberUseCaseState()
     var selectedDays by remember { mutableStateOf(listOf<String>("Everyday")) }
-    var reminderHours by remember { mutableStateOf(0) }
-    var reminderMins by remember { mutableStateOf(0) }
+    var reminderHours by remember { mutableIntStateOf(0) }
+    val reminderMin by remember { mutableIntStateOf(0) }
     var reminder by remember { mutableStateOf(LocalTime.now()) }
     var isReminder by remember { mutableStateOf(false) }
     var startFrom by remember { mutableStateOf(LocalDate.now()) }
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -80,7 +91,7 @@ fun AddHabit(navController: NavHostController) {
                         Option(titleText = "Fri"),
                         Option(titleText = "Everyday"),
                     ),
-                    onSelectOptions = { selectedIndices, selectedOptions ->
+                    onSelectOptions = { _, selectedOptions ->
                         selectedDays = selectedOptions.map { it.titleText }
                         Log.d("trace", "Selected days: $selectedDays")
                     }
@@ -100,11 +111,12 @@ fun AddHabit(navController: NavHostController) {
             ClockDialog(
                 state = timeState,
                 selection = ClockSelection.HoursMinutes { hours, minutes ->
-                    reminderHours = hours
-                    reminderMins = minutes
                     reminder = LocalTime.of(hours, minutes)
                     Log.d("trace", "Selected time: $reminder")
-                })
+                },
+                config = ClockConfig(
+                    defaultTime = reminder,
+                ))
             Text(
                 text = "Add a New Habit",
                 fontSize = 24.sp,
@@ -116,12 +128,22 @@ fun AddHabit(navController: NavHostController) {
                 value = habitName,
                 onValueChange = {
                     habitName = it
+                    isHabitNameValid = it.isNotBlank()
                 },
+                isError = !isHabitNameValid,
                 placeholder = {
                     Text(text = "Habit Name")
                 },
                 shape = RoundedCornerShape(16.dp),
             )
+            if (!isHabitNameValid) {
+                Text(
+                    text = "Please enter Habit Name",
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
             OutlinedTextField(
                 modifier = Modifier
                     .padding(top = 16.dp)
@@ -129,12 +151,20 @@ fun AddHabit(navController: NavHostController) {
                 value = habitDescription,
                 onValueChange = {
                     habitDescription = it
+                    isHabitDescriptionValid = it.isNotBlank()
                 },
+                isError = !isHabitDescriptionValid,
                 placeholder = {
                     Text(text = "Habit Description")
                 },
                 shape = RoundedCornerShape(16.dp),
             )
+            if (!isHabitDescriptionValid) {
+                Text(
+                    text = "Please enter Habit Description", color = Color.Red, fontSize = 14.sp,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
             Row {
                 Button(
                     onClick = {
@@ -149,7 +179,7 @@ fun AddHabit(navController: NavHostController) {
                     Text(text = "Repeat")
                 }
                 Spacer(modifier = Modifier.weight(1f))
-                if (selectedDays.size >= 7) {
+                if (selectedDays.size >= 7 || selectedDays.contains("Everyday")) {
                     selectedDays = listOf("Everyday")
                 }
                 Surface(
@@ -170,7 +200,11 @@ fun AddHabit(navController: NavHostController) {
                 modifier = Modifier.padding(16.dp)
             ) {
                 Text(
-                    text = "Set Reminder"
+                    text = "Set Reminder",
+                    modifier = Modifier.clickable {
+                        timeState.show()
+                        isReminder = true
+                    }
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Switch(checked = isReminder, onCheckedChange = {
@@ -185,10 +219,10 @@ fun AddHabit(navController: NavHostController) {
             }
             if (reminderHours != 0 && isReminder) {
                 val reminderMinStr: String =
-                    (if (reminderMins == 0) {
+                    (if (reminderMin == 0) {
                         "00"
                     } else {
-                        reminderMins.toString()
+                        reminderMin.toString()
                     }).toString()
                 var AMorPm by remember { mutableStateOf("AM") }
                 if (reminderHours > 12) {
@@ -247,7 +281,22 @@ fun AddHabit(navController: NavHostController) {
             Spacer(modifier = Modifier.weight(1f))
             Button(
                 onClick = {
-                    addHabit(habitName, habitDescription, selectedDays, reminder, startFrom)
+                    if (habitName.isNotBlank() && habitDescription.isNotBlank()) {
+                        addHabit(
+                            habitName,
+                            habitDescription,
+                            selectedDays,
+                            reminder,
+                            startFrom,
+                            context,
+                            navController
+                        )
+                    } else {
+                        if (habitName.isBlank())
+                            isHabitNameValid = false
+                        if (habitDescription.isBlank())
+                            isHabitDescriptionValid = false
+                    }
                 },
                 modifier = Modifier
                     .padding(top = 16.dp)
@@ -266,7 +315,9 @@ fun addHabit(
     description: String,
     repeat: List<String>,
     reminder: LocalTime,
-    startFrom: LocalDate
+    startFrom: LocalDate,
+    context: Context,
+    navController: NavHostController,
 ) {
     val db = Firebase.firestore
     val habit = hashMapOf(
@@ -277,6 +328,9 @@ fun addHabit(
         "startFrom" to startFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
     )
     db.collection("habits").add(habit).addOnSuccessListener {
-        Log.d("trace", "Habit added with ID: ${it.id}")
+        Toast.makeText(context, "Habit added successfully", Toast.LENGTH_SHORT).show()
+        navController.navigate("/home")
+    }.addOnFailureListener {
+        Toast.makeText(context, "Something Went Wrong", Toast.LENGTH_SHORT).show()
     }
 }
