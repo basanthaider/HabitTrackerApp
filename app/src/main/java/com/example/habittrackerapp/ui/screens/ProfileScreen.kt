@@ -127,7 +127,7 @@ fun LineChart() {
 @Composable
 fun StreakCard() {
     Card(
-        elevation = CardDefaults.cardElevation(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 32.dp),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = Blue
@@ -189,7 +189,7 @@ fun Grid() {
     Column (  modifier = Modifier.padding(4.dp)){
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Card(
-                elevation = CardDefaults.cardElevation(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(containerColor = DarkBlue),
                 modifier = Modifier
@@ -227,7 +227,7 @@ fun Grid() {
                 }
             }
             Card(
-                elevation = CardDefaults.cardElevation(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(containerColor = DarkBlue),
                 modifier = Modifier
@@ -269,7 +269,7 @@ fun Grid() {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Card(
-                elevation = CardDefaults.cardElevation(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(containerColor = DarkBlue),
                 modifier = Modifier
@@ -307,7 +307,7 @@ fun Grid() {
                 }
             }
             Card(
-                elevation = CardDefaults.cardElevation(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(containerColor = DarkBlue),
                 modifier = Modifier
