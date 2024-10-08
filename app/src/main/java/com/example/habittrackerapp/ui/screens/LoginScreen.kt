@@ -203,8 +203,12 @@ fun LoginScreen(navController: NavHostController) {
                 // Login Button
                 Button(
                     onClick = {
-                        loginUser(email, password, navController,context)
-                              },
+                        if (email.isBlank() || password.isBlank()) {
+                            Toast.makeText(context, "Please enter both email and password", Toast.LENGTH_SHORT).show()
+                        } else {
+                            loginUser(email, password, navController, context)
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp)
