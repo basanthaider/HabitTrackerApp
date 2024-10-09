@@ -1,7 +1,9 @@
 package com.example.habittrackerapp.ui.screens
 
 import android.view.LayoutInflater
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -48,7 +51,7 @@ fun ProfileScreen(navController: NavHostController) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 8.dp),
+                .padding(top = 8.dp, start = 8.dp, end = 8.dp, bottom = 8.dp),
             contentAlignment = Alignment.Center,
         )
         {
@@ -88,6 +91,7 @@ fun LineChart() {
         }, modifier = Modifier
             .fillMaxWidth()
             .height(250.dp)
+            .padding(top = 32.dp, bottom = 32.dp)
     )
     { view ->
         val lineChart = view.findViewById<LineChart>(R.id.lineChart)
@@ -127,13 +131,13 @@ fun LineChart() {
 @Composable
 fun StreakCard() {
     Card(
-        elevation = CardDefaults.cardElevation(defaultElevation = 32.dp),
-        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = Blue
         ),
         modifier = Modifier
-            .padding(8.dp)
+            .padding(start = 8.dp, top = 16.dp, bottom = 16.dp, end = 8.dp)
             .fillMaxWidth()
     ) {
         Row(
@@ -171,11 +175,11 @@ fun StreakCard() {
 
             }
             Image(
-                painter = painterResource(id = R.drawable.trophy),
+                painter = painterResource(id = R.drawable.ic_trophy),
                 contentDescription = "streak",
                 modifier = Modifier
                     .padding(start = 16.dp)
-                    .size(100.dp)
+                    .size(132.dp)
                     .weight(1f)
             )
 
@@ -186,11 +190,11 @@ fun StreakCard() {
 
 @Composable
 fun Grid() {
-    Column (  modifier = Modifier.padding(4.dp)){
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column {
+        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
             Card(
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = DarkBlue),
                 modifier = Modifier
                     .padding(8.dp)
@@ -198,16 +202,14 @@ fun Grid() {
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 4.dp),
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(8.dp)
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.calender_png),
+                            painter = painterResource(id = R.drawable.ic_schedulee),
                             contentDescription = "streak",
                             modifier = Modifier.size(50.dp)
-
                         )
                         Text(
                             text = "0 Days",
@@ -221,32 +223,28 @@ fun Grid() {
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                         )
-
                     }
-
                 }
             }
             Card(
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = DarkBlue),
                 modifier = Modifier
                     .padding(8.dp)
                     .weight(1f)
             ) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(8.dp)
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.check),
+                            painter = painterResource(id = R.drawable.ic_check),
                             contentDescription = "streak",
                             modifier = Modifier
                                 .size(50.dp)
-
                         )
                         Text(
                             text = "0",
@@ -260,17 +258,14 @@ fun Grid() {
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                         )
-
                     }
-
                 }
             }
-
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
             Card(
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = DarkBlue),
                 modifier = Modifier
                     .padding(8.dp)
@@ -278,16 +273,14 @@ fun Grid() {
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 8.dp),
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(8.dp)
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.rate),
+                            painter = painterResource(id = R.drawable.ic_rate),
                             contentDescription = "streak",
                             modifier = Modifier.size(50.dp)
-
                         )
                         Text(
                             text = "0 %",
@@ -301,14 +294,12 @@ fun Grid() {
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                         )
-
                     }
-
                 }
             }
             Card(
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = DarkBlue),
                 modifier = Modifier
                     .padding(8.dp)
@@ -316,17 +307,15 @@ fun Grid() {
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 8.dp),
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(8.dp)
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.avarge),
+                            painter = painterResource(id = R.drawable.growth),
                             contentDescription = "streak",
                             modifier = Modifier
                                 .size(50.dp)
-
                         )
                         Text(
                             text = "0.0",
@@ -340,15 +329,12 @@ fun Grid() {
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                         )
-
                     }
-
                 }
             }
-
         }
     }
-    }
+}
 
 
 
