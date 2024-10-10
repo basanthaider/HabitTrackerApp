@@ -1,8 +1,6 @@
 package com.example.habittrackerapp.ui.screens
 
-import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,8 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.habittrackerapp.repository.HabitRepository
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
@@ -52,13 +48,10 @@ import com.maxkeppeler.sheets.option.models.OptionConfig
 import com.maxkeppeler.sheets.option.models.OptionSelection
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
-
-private val modifier = Modifier.padding(start = 16.dp)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddHabit(navController: NavHostController,habitRepository: HabitRepository) {
+fun AddHabit(navController: NavHostController, habitRepository: HabitRepository, userId: String) {
     var habitName by remember { mutableStateOf("") }
     var isHabitNameValid by remember { mutableStateOf(true) }
     var habitDescription by remember { mutableStateOf("") }
@@ -225,10 +218,10 @@ fun AddHabit(navController: NavHostController,habitRepository: HabitRepository) 
                     } else {
                         reminderMin.toString()
                     }).toString()
-                var AMorPm by remember { mutableStateOf("AM") }
+                var amOrPm by remember { mutableStateOf("AM") }
                 if (reminderHours > 12) {
                     reminderHours -= 12
-                    AMorPm = "PM"
+                    amOrPm = "PM"
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -239,7 +232,7 @@ fun AddHabit(navController: NavHostController,habitRepository: HabitRepository) 
                         shape = RoundedCornerShape(16)
                     ) {
                         Text(
-                            text = "Remind me at $reminderHours:$reminderMinStr $AMorPm",
+                            text = "Remind me at $reminderHours:$reminderMinStr $amOrPm",
                             modifier = Modifier.padding(16.dp)
                         )
                     }
@@ -284,26 +277,25 @@ fun AddHabit(navController: NavHostController,habitRepository: HabitRepository) 
                 onClick = {
                     if (habitName.isNotBlank() && habitDescription.isNotBlank()) {
                         habitRepository.addHabit(
-                            habitName,
-                            habitDescription,
-                            selectedDays,
-                            reminder,
-                            startFrom,
-                            context,
-                            navController
+                            userId = userId,
+                            name = habitName,
+                            description = habitDescription,
+                            repeat = selectedDays,
+                            reminder = reminder,
+                            startFrom = startFrom,
+                            context = context,
+                            navController = navController
                         )
                     } else {
-                        if (habitName.isBlank())
-                            isHabitNameValid = false
-                        if (habitDescription.isBlank())
-                            isHabitDescriptionValid = false
+                        if (habitName.isBlank()) isHabitNameValid = false
+                        if (habitDescription.isBlank()) isHabitDescriptionValid = false
                     }
                 },
                 modifier = Modifier
                     .padding(top = 16.dp)
                     .fillMaxWidth()
                     .height(55.dp),
-                shape = RoundedCornerShape(24),
+                shape = RoundedCornerShape(24)
             ) {
                 Text(text = "Save")
             }

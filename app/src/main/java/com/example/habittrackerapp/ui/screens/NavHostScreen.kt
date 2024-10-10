@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
@@ -33,7 +34,7 @@ import com.example.habittrackerapp.utils.NavItem
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun NavHostScreen() {
+fun NavHostScreen(habitRepository: HabitRepository, userId: String) {
     val auth = FirebaseAuth.getInstance()
     var currentUser by remember { mutableStateOf(auth.currentUser) }
     val navController = rememberNavController()
@@ -76,11 +77,11 @@ fun NavHostScreen() {
 
             composable(route = "/home") {
                 bottomBarVisibility = true
-                HomeScreen(navController)
+                HomeScreen(navController, habitRepository = habitRepository, userId = userId)
             }
             composable(route = "/addHabit") {
                 bottomBarVisibility = false
-                AddHabit(navController, habitRepository = HabitRepository())
+                AddHabit(navController = navController, habitRepository = habitRepository, userId = userId)
             }
             composable(route = "/editHabit") {
                 bottomBarVisibility = false
@@ -118,7 +119,7 @@ fun NavigationBottomBar(navController: NavHostController, items: List<NavItem>) 
                     }
                 },
                 icon = { Icon(imageVector = item.icon, contentDescription = item.label) },
-                alwaysShowLabel = true,
+                alwaysShowLabel = false,
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Blue,
                     selectedTextColor = White,
@@ -138,5 +139,6 @@ fun NavigationBottomBar(navController: NavHostController, items: List<NavItem>) 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun NavHostScreenPreview() {
-    NavHostScreen()
+    // Pass dummy values for preview purposes
+    NavHostScreen(habitRepository = HabitRepository(), userId = "dummyUserId")
 }
