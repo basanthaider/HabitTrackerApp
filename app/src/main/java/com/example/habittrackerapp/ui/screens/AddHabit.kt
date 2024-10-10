@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.habittrackerapp.repository.HabitRepository
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
@@ -57,7 +58,7 @@ private val modifier = Modifier.padding(start = 16.dp)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddHabit(navController: NavHostController) {
+fun AddHabit(navController: NavHostController,habitRepository: HabitRepository) {
     var habitName by remember { mutableStateOf("") }
     var isHabitNameValid by remember { mutableStateOf(true) }
     var habitDescription by remember { mutableStateOf("") }
@@ -282,7 +283,7 @@ fun AddHabit(navController: NavHostController) {
             Button(
                 onClick = {
                     if (habitName.isNotBlank() && habitDescription.isNotBlank()) {
-                        addHabit(
+                        habitRepository.addHabit(
                             habitName,
                             habitDescription,
                             selectedDays,
@@ -310,27 +311,3 @@ fun AddHabit(navController: NavHostController) {
     }
 }
 
-fun addHabit(
-    name: String,
-    description: String,
-    repeat: List<String>,
-    reminder: LocalTime,
-    startFrom: LocalDate,
-    context: Context,
-    navController: NavHostController,
-) {
-    val db = Firebase.firestore
-    val habit = hashMapOf(
-        "name" to name,
-        "description" to description,
-        "repeat" to repeat,
-        "reminder" to reminder,
-        "startFrom" to startFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-    )
-    db.collection("habits").add(habit).addOnSuccessListener {
-        Toast.makeText(context, "Habit added successfully", Toast.LENGTH_SHORT).show()
-        navController.navigate("/home")
-    }.addOnFailureListener {
-        Toast.makeText(context, "Something Went Wrong", Toast.LENGTH_SHORT).show()
-    }
-}

@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.habittrackerapp.ui.theme.Blue
+import com.example.habittrackerapp.ui.theme.White
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
@@ -64,9 +66,10 @@ fun HomeScreen(navController: NavHostController) {
                         },
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
-                            .padding(end = 16.dp),
-                        containerColor = Color(0xff485d92),
-                        contentColor = Color.White
+                            .padding(end = 16.dp)
+                            .padding(bottom = 8.dp),
+                        containerColor = Blue,
+                        contentColor = White
                     ) {
                         Icon(Icons.Filled.Add, contentDescription = "Add")
                     }
@@ -77,9 +80,10 @@ fun HomeScreen(navController: NavHostController) {
                         },
                         modifier = Modifier
                             .align(Alignment.BottomStart)
-                            .padding(start = 16.dp),
-                        containerColor = Color(0xff485d92),
-                        contentColor = Color.White
+                            .padding(start = 16.dp)
+                            .padding(bottom = 8.dp),
+                        containerColor = Blue,
+                        contentColor = White
                     ) {
                         Icon(Icons.Filled.DateRange, contentDescription = "Calendar")
                     }

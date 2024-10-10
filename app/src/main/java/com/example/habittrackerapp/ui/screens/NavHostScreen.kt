@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
@@ -26,6 +25,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.habittrackerapp.repository.HabitRepository
+import com.example.habittrackerapp.ui.theme.Blue
+import com.example.habittrackerapp.ui.theme.DarkBlue
+import com.example.habittrackerapp.ui.theme.White
 import com.example.habittrackerapp.utils.NavItem
 import com.google.firebase.auth.FirebaseAuth
 
@@ -77,7 +80,7 @@ fun NavHostScreen() {
             }
             composable(route = "/addHabit") {
                 bottomBarVisibility = false
-                AddHabit(navController)
+                AddHabit(navController, habitRepository = HabitRepository())
             }
             composable(route = "/editHabit") {
                 bottomBarVisibility = false
@@ -100,7 +103,7 @@ fun NavigationBottomBar(navController: NavHostController, items: List<NavItem>) 
     val context = LocalContext.current.applicationContext
     val currentRoute = navBackStackEntry.value?.destination?.route
     BottomAppBar(
-        containerColor = MaterialTheme.colorScheme.primary
+        containerColor = Blue
     ) {
         items.forEach { item ->
             NavigationBarItem(
@@ -115,12 +118,13 @@ fun NavigationBottomBar(navController: NavHostController, items: List<NavItem>) 
                     }
                 },
                 icon = { Icon(imageVector = item.icon, contentDescription = item.label) },
-                alwaysShowLabel = false,
+                alwaysShowLabel = true,
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                    unselectedTextColor = androidx.compose.ui.graphics.Color.Gray,
-                    unselectedIconColor = androidx.compose.ui.graphics.Color.Gray
+                    selectedIconColor = Blue,
+                    selectedTextColor = White,
+                    unselectedTextColor = DarkBlue,
+                    unselectedIconColor = White
+
                 )
 
 
