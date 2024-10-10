@@ -221,7 +221,9 @@ fun RegisterScreen(navController: NavHostController) {
                 // Register Button
                 Button(
                     onClick = {
-                        if (password == confirmPassword) { // Check if passwords match
+                        if (email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
+                            Toast.makeText(context, "Please fill in all the fields", Toast.LENGTH_SHORT).show()
+                        } else if (password == confirmPassword) { // Check if passwords match
                             if (!isEmailValid(email)) { // Check if email is valid
                                 Toast.makeText(context, "Invalid email format", Toast.LENGTH_SHORT).show()
                             } else if (!isPasswordValid(password)) { // Check if password meets criteria
