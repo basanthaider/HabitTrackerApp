@@ -26,6 +26,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.habittrackerapp.repository.HabitRepository
 import com.example.habittrackerapp.ui.theme.Blue
 import com.example.habittrackerapp.ui.theme.DarkBlue
 import com.example.habittrackerapp.ui.theme.White
@@ -33,7 +34,7 @@ import com.example.habittrackerapp.utils.NavItem
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun NavHostScreen() {
+fun NavHostScreen(habitRepository: HabitRepository, userId: String) {
     val auth = FirebaseAuth.getInstance()
     var currentUser by remember { mutableStateOf(auth.currentUser) }
     val navController = rememberNavController()
@@ -80,7 +81,7 @@ fun NavHostScreen() {
             }
             composable(route = "/addHabit") {
                 bottomBarVisibility = false
-                AddHabit(navController)
+                AddHabit(navController = navController, habitRepository = habitRepository, userId = userId)
             }
             composable(route = "/editHabit") {
                 bottomBarVisibility = false
@@ -138,5 +139,6 @@ fun NavigationBottomBar(navController: NavHostController, items: List<NavItem>) 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun NavHostScreenPreview() {
-    NavHostScreen()
+    // Pass dummy values for preview purposes
+    NavHostScreen(habitRepository = HabitRepository(), userId = "dummyUserId")
 }
