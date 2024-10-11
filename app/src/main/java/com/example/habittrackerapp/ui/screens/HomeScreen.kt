@@ -54,20 +54,10 @@ import com.maxkeppeler.sheets.calendar.models.CalendarStyle
 fun HomeScreen(navController: NavHostController,sharedViewModel: SharedViewModel = viewModel() , habitRepository: HabitRepository,userId: String) {
     val calendarState = rememberUseCaseState()
     val context = LocalContext.current
-/*
-    val habits = remember { mutableStateListOf<Habit>() } // Stores retrieved habits
-*/
-//"hka3A2FLm3YnjP0w3CPG1LWa7Ek2"
+    //"hka3A2FLm3YnjP0w3CPG1LWa7Ek2" user id
     LaunchedEffect(Unit) {
         habitRepository.getHabits(userId)
     }
-/*
-    val getHabits = sharedViewModel.state.value
-*/
-/*
-    val habits by sharedViewModel.habitList.collectAsStateWithLifecycle()
-*/
-
     Scaffold { innerPadding ->
         Column {
             Text(
