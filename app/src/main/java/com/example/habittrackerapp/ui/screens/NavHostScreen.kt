@@ -78,7 +78,7 @@ fun NavHostScreen(habitRepository: HabitRepository, userId: String) {
 
             composable(route = "/home") {
                 bottomBarVisibility = true
-                HomeScreen(navController, sharedViewModel = viewModel(), userId = userId)
+                HomeScreen(navController, sharedViewModel = viewModel(), habitRepository=HabitRepository(),userId = userId)
             }
             composable(route = "/addHabit") {
                 bottomBarVisibility = false

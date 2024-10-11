@@ -51,20 +51,22 @@ import com.maxkeppeler.sheets.calendar.models.CalendarStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController,sharedViewModel: SharedViewModel = viewModel() , userId: String) {
+fun HomeScreen(navController: NavHostController,sharedViewModel: SharedViewModel = viewModel() , habitRepository: HabitRepository,userId: String) {
     val calendarState = rememberUseCaseState()
     val context = LocalContext.current
 /*
     val habits = remember { mutableStateListOf<Habit>() } // Stores retrieved habits
 */
-
-  /*  LaunchedEffect(Unit) {
-        habitRepository.getHabits("hka3A2FLm3YnjP0w3CPG1LWa7Ek2")
-    }*/
+//"hka3A2FLm3YnjP0w3CPG1LWa7Ek2"
+    LaunchedEffect(Unit) {
+        habitRepository.getHabits(userId)
+    }
 /*
     val getHabits = sharedViewModel.state.value
 */
+/*
     val habits by sharedViewModel.habitList.collectAsStateWithLifecycle()
+*/
 
     Scaffold { innerPadding ->
         Column {
@@ -73,7 +75,7 @@ fun HomeScreen(navController: NavHostController,sharedViewModel: SharedViewModel
                 fontSize = 24.sp,
                 modifier = Modifier.padding(start = 16.dp, top = 16.dp)
             )
-            LazyColumn (
+          /*  LazyColumn (
                 contentPadding = PaddingValues(20.dp),
                 modifier = Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -88,7 +90,7 @@ fun HomeScreen(navController: NavHostController,sharedViewModel: SharedViewModel
                     }
                 }
 
-            }
+            }*/
 
             CalendarDialog(
                 state = calendarState,

@@ -1,8 +1,11 @@
 package com.example.habittrackerapp.repository
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.navigation.NavHostController
+import com.example.habittrackerapp.models.Habit
+import com.example.habittrackerapp.models.Reminder
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.time.LocalDate
@@ -44,23 +47,10 @@ class HabitRepository {
             }
     }
 
-   /* fun getHabits(userId: String) {
-        val habits = mutableListOf<Habit>()
-        db.collection("habits")
-            .whereEqualTo("userId", userId)
-            .get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    val habit = document.toObject(Habit::class.java)
-                    habits.add(habit)
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.d("error", "Error getting habits:$exception ")
-            }
-    }*/
 
-   /* fun getHabits(userId: String): List<Habit> {
+
+    //all habit info
+    /*fun getHabits(userId: String): List<Habit> {
         val habits = mutableListOf<Habit>()
         db.collection("users")
             .document(userId)
@@ -71,11 +61,11 @@ class HabitRepository {
                 for (document in result) {
                     val documentSnapshot = document// Your DocumentSnapshot object
 
-                    val habitId = documentSnapshot.id
+                    *//*val habitId = documentSnapshot.id
                     val habitData = documentSnapshot.data!! // Assuming data exists
 
                     val habit = Habit(
-                       *//* id = habitId,*//*
+                        id = habitId,
                         userId = habitData["userId"] as String,
                         name = habitData["name"] as String,
                         description = habitData["description"] as String,
@@ -96,8 +86,8 @@ class HabitRepository {
                         repeat = (habitData["repeat"] as List<*>).filterIsInstance<String>(),
                         startFrom = habitData["startFrom"] as String
                     )
-                   *//* habits.add(habit)*//*
-
+                    habits.add(habit)
+                    Log.d("habit","the end habits list $habits")*//*
                     Log.d("trace", "Results retrieved: $document")
                 }
             }
@@ -105,9 +95,35 @@ class HabitRepository {
                 Log.d("error", "Error getting habits:$exception") // Use Log.e for errors
             }
         return habits
+
+
+    }*/
+
+    //only name and description
+    fun getHabits(userId: String): List<Habit> {
+        val habits = mutableListOf<Habit>()
+        db.collection("users")
+            .document(userId)
+            .collection("habits")
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    val documentData = document.data!! // Assuming data exists
+
+                    val habitName = documentData["name"] as String
+                    val habitDescription = documentData["description"] as String
+
+                    habits.add(Habit(name = habitName, description = habitDescription))
+                    Log.d("habits","habit list : $habits")
+                    Log.d("doc","retrieved docs : $document")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("error", "Error getting habits:$exception")
+            }
+        return habits
     }
 
-*/
 
 
 }
