@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.habittrackerapp.repository.HabitRepository
+import com.example.habittrackerapp.repository.HabitViewModel
 import com.example.habittrackerapp.ui.screens.NavHostScreen
 import com.example.habittrackerapp.ui.theme.HabitTrackerAppTheme
 import com.google.firebase.auth.FirebaseAuth
@@ -14,8 +14,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Create an instance of HabitRepository
-        val habitRepository = HabitRepository()
+        // Create an instance of HabitViewModel
+        val habitViewModel = HabitViewModel()
 
         // Get the current user from FirebaseAuth
         val currentUser = FirebaseAuth.getInstance().currentUser
@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             HabitTrackerAppTheme {
                 // Pass habitRepository and userId to NavHostScreen
-                NavHostScreen(habitRepository = habitRepository, userId = userId)
+                NavHostScreen(habitViewModel=habitViewModel, userId = userId)
             }
         }
     }

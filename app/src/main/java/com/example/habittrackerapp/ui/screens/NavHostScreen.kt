@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
@@ -26,7 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.habittrackerapp.repository.HabitRepository
+import com.example.habittrackerapp.repository.HabitViewModel
 import com.example.habittrackerapp.ui.theme.Blue
 import com.example.habittrackerapp.ui.theme.DarkBlue
 import com.example.habittrackerapp.ui.theme.White
@@ -34,7 +33,7 @@ import com.example.habittrackerapp.utils.NavItem
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun NavHostScreen(habitRepository: HabitRepository, userId: String) {
+fun NavHostScreen(habitViewModel: HabitViewModel, userId: String) {
     val auth = FirebaseAuth.getInstance()
     var currentUser by remember { mutableStateOf(auth.currentUser) }
     val navController = rememberNavController()
@@ -59,7 +58,7 @@ fun NavHostScreen(habitRepository: HabitRepository, userId: String) {
             //لما نخلص خالص هنحط السطرين دول متمسحهومش
            // navController = navController,
            // startDestination = if (currentUser != null) "home" else "login"
-            navController = navController, startDestination = "/login",
+            navController = navController, startDestination = "/home",
             modifier = Modifier.padding(it)
         ) {
             composable(route = "/login") {
@@ -77,11 +76,11 @@ fun NavHostScreen(habitRepository: HabitRepository, userId: String) {
 
             composable(route = "/home") {
                 bottomBarVisibility = true
-                HomeScreen(navController, habitRepository = habitRepository, userId = userId)
+                HomeScreen(navController, habitViewModel=HabitViewModel(),userId = userId)
             }
             composable(route = "/addHabit") {
                 bottomBarVisibility = false
-                AddHabit(navController = navController, habitRepository = habitRepository, userId = userId)
+                AddHabit(navController = navController, habitViewModel = habitViewModel, userId = userId)
             }
             composable(route = "/editHabit") {
                 bottomBarVisibility = false
@@ -140,5 +139,5 @@ fun NavigationBottomBar(navController: NavHostController, items: List<NavItem>) 
 @Composable
 fun NavHostScreenPreview() {
     // Pass dummy values for preview purposes
-    NavHostScreen(habitRepository = HabitRepository(), userId = "dummyUserId")
+    NavHostScreen(habitViewModel = HabitViewModel(), userId = "dummyUserId")
 }
