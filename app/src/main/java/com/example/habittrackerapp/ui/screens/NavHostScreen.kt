@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -77,7 +78,7 @@ fun NavHostScreen(habitRepository: HabitRepository, userId: String) {
 
             composable(route = "/home") {
                 bottomBarVisibility = true
-                HomeScreen(navController)
+                HomeScreen(navController, sharedViewModel = viewModel(), userId = userId)
             }
             composable(route = "/addHabit") {
                 bottomBarVisibility = false
