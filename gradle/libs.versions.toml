@@ -10,6 +10,8 @@ espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.2"
 composeBom = "2024.04.01"
+lifecycleViewmodelCompose = "2.8.5"
+lifecycleViewmodelKtx = "2.8.6"
 mpandroidchart = "v3.1.0"
 navigationCompose = "2.8.2"
 singleRowCalednar = "1.0.0"
@@ -18,6 +20,8 @@ firebaseFirestoreKtx = "25.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 calendar = { module = "com.maxkeppeler.sheets-compose-dialogs:calendar", version.ref = "core" }
 clock = { module = "com.maxkeppeler.sheets-compose-dialogs:clock", version.ref = "core" }

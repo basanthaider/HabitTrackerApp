@@ -254,8 +254,11 @@ private fun loginUser(email: String, password: String, navController: NavHostCon
             if (task.isSuccessful) {
                 Toast.makeText( context, "Login successful", Toast.LENGTH_SHORT).show()
                 // Login successful, navigate to home screen
-                navController.navigate("/home"){
-                popUpTo("login") { inclusive = true }
+                Log.d("LoginUser", "Login successful : ${task.result.user?.uid}")
+                val currentUser = FirebaseAuth.getInstance().currentUser
+                val userId = currentUser?.uid ?: ""
+                navController.navigate("/home/$userId" ){
+                popUpTo("/login") { inclusive = true }
                 }
             } else {
                 // Handle the error (e.g., show a Snackbar with an error message)

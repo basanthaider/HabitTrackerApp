@@ -1,8 +1,6 @@
 package com.example.habittrackerapp.ui.screens
 
-import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,9 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.habittrackerapp.repository.HabitRepository
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.example.habittrackerapp.repository.HabitViewModel
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
@@ -52,13 +48,10 @@ import com.maxkeppeler.sheets.option.models.OptionConfig
 import com.maxkeppeler.sheets.option.models.OptionSelection
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
-
-private val modifier = Modifier.padding(start = 16.dp)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddHabit(navController: NavHostController,habitRepository: HabitRepository) {
+fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel, userId: String) {
     var habitName by remember { mutableStateOf("") }
     var isHabitNameValid by remember { mutableStateOf(true) }
     var habitDescription by remember { mutableStateOf("") }
@@ -83,13 +76,13 @@ fun AddHabit(navController: NavHostController,habitRepository: HabitRepository) 
                 state = optionState,
                 selection = OptionSelection.Multiple(
                     options = listOf(
-                        Option(titleText = "Sat"),
-                        Option(titleText = "Sun"),
-                        Option(titleText = "Mon"),
-                        Option(titleText = "Tue"),
-                        Option(titleText = "Wed"),
-                        Option(titleText = "Thu"),
-                        Option(titleText = "Fri"),
+                        Option(titleText = "Saturday"),
+                        Option(titleText = "Sunday"),
+                        Option(titleText = "Monday"),
+                        Option(titleText = "Tuesday"),
+                        Option(titleText = "Wednesday"),
+                        Option(titleText = "Thursday"),
+                        Option(titleText = "Friday"),
                         Option(titleText = "Everyday"),
                     ),
                     onSelectOptions = { _, selectedOptions ->
@@ -225,10 +218,10 @@ fun AddHabit(navController: NavHostController,habitRepository: HabitRepository) 
                     } else {
                         reminderMin.toString()
                     }).toString()
-                var AMorPm by remember { mutableStateOf("AM") }
+                var amOrPm by remember { mutableStateOf("AM") }
                 if (reminderHours > 12) {
                     reminderHours -= 12
-                    AMorPm = "PM"
+                    amOrPm = "PM"
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -239,7 +232,7 @@ fun AddHabit(navController: NavHostController,habitRepository: HabitRepository) 
                         shape = RoundedCornerShape(16)
                     ) {
                         Text(
-                            text = "Remind me at $reminderHours:$reminderMinStr $AMorPm",
+                            text = "Remind me at $reminderHours:$reminderMinStr $amOrPm",
                             modifier = Modifier.padding(16.dp)
                         )
                     }
@@ -283,27 +276,26 @@ fun AddHabit(navController: NavHostController,habitRepository: HabitRepository) 
             Button(
                 onClick = {
                     if (habitName.isNotBlank() && habitDescription.isNotBlank()) {
-                        habitRepository.addHabit(
-                            habitName,
-                            habitDescription,
-                            selectedDays,
-                            reminder,
-                            startFrom,
-                            context,
-                            navController
+                        habitViewModel.addHabit(
+                            userId = userId,
+                            name = habitName,
+                            description = habitDescription,
+                            repeat = selectedDays,
+                            reminder = reminder,
+                            startFrom = startFrom,
+                            context = context,
+                            navController = navController
                         )
                     } else {
-                        if (habitName.isBlank())
-                            isHabitNameValid = false
-                        if (habitDescription.isBlank())
-                            isHabitDescriptionValid = false
+                        if (habitName.isBlank()) isHabitNameValid = false
+                        if (habitDescription.isBlank()) isHabitDescriptionValid = false
                     }
                 },
                 modifier = Modifier
                     .padding(top = 16.dp)
                     .fillMaxWidth()
                     .height(55.dp),
-                shape = RoundedCornerShape(24),
+                shape = RoundedCornerShape(24)
             ) {
                 Text(text = "Save")
             }

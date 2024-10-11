@@ -1,26 +1,30 @@
 package com.example.habittrackerapp
 
-import LoginScreen
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.rememberNavController
-import com.example.habittrackerapp.ui.screens.HomeScreen
+import com.example.habittrackerapp.repository.HabitViewModel
 import com.example.habittrackerapp.ui.screens.NavHostScreen
-import com.example.habittrackerapp.ui.screens.NavigationBottomBar
 import com.example.habittrackerapp.ui.theme.HabitTrackerAppTheme
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Create an instance of HabitViewModel
+        val habitViewModel = HabitViewModel()
+
+        // Get the current user from FirebaseAuth
+
+
         setContent {
             HabitTrackerAppTheme {
-               NavHostScreen()
-
+                // Pass habitRepository and userId to NavHostScreen
+                NavHostScreen(habitViewModel=habitViewModel)
             }
         }
     }
