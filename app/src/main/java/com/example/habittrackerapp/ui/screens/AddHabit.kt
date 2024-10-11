@@ -32,7 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.habittrackerapp.repository.HabitRepository
+import com.example.habittrackerapp.repository.HabitViewModel
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
@@ -51,7 +51,7 @@ import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddHabit(navController: NavHostController, habitRepository: HabitRepository, userId: String) {
+fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel, userId: String) {
     var habitName by remember { mutableStateOf("") }
     var isHabitNameValid by remember { mutableStateOf(true) }
     var habitDescription by remember { mutableStateOf("") }
@@ -276,7 +276,7 @@ fun AddHabit(navController: NavHostController, habitRepository: HabitRepository,
             Button(
                 onClick = {
                     if (habitName.isNotBlank() && habitDescription.isNotBlank()) {
-                        habitRepository.addHabit(
+                        habitViewModel.addHabit(
                             userId = userId,
                             name = habitName,
                             description = habitDescription,

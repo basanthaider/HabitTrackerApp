@@ -43,20 +43,12 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import java.time.LocalDate
 
 
 @Composable
 fun ProfileScreen(navController: NavHostController) {
-    Scaffold(topBar = {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp, start = 8.dp, end = 8.dp, bottom = 8.dp),
-            contentAlignment = Alignment.Center,
-        )
-        {
-        }
-    })
+    Scaffold()
     {
         Column(
             modifier = Modifier.padding(it),
@@ -76,13 +68,15 @@ fun ProfileScreen(navController: NavHostController) {
 @Composable
 fun LineChart() {
     val context = LocalContext.current
-    val sampleData = listOf( // Replace with your actual data
+    val sampleData =
+        listOf( // Replace with your actual data
         Entry(1f, 10f),
         Entry(2f, 15f),
         Entry(3f, 20f),
         Entry(4f, 18f),
         Entry(5f, 25f)
     )
+    val sampleData_ =
 
     AndroidView(
         factory = {
@@ -361,3 +355,12 @@ fun StreakCardPreview(){
 fun GridPreview(){
     Grid()
 }*/
+data class Streak(
+    val date:LocalDate,
+    val streak:Int
+)
+val list = listOf<Streak>(
+    Streak(LocalDate.now(),5),
+    Streak(LocalDate.now(),7)
+
+)
