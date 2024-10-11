@@ -1,6 +1,7 @@
 package com.example.habittrackerapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -18,13 +19,12 @@ class MainActivity : ComponentActivity() {
         val habitViewModel = HabitViewModel()
 
         // Get the current user from FirebaseAuth
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        val userId = currentUser?.uid ?: ""
+
 
         setContent {
             HabitTrackerAppTheme {
                 // Pass habitRepository and userId to NavHostScreen
-                NavHostScreen(habitViewModel=habitViewModel, userId = userId)
+                NavHostScreen(habitViewModel=habitViewModel)
             }
         }
     }

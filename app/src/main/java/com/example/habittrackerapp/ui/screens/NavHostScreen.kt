@@ -21,10 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.habittrackerapp.repository.HabitViewModel
 import com.example.habittrackerapp.ui.theme.Blue
 import com.example.habittrackerapp.ui.theme.DarkBlue
@@ -33,7 +35,7 @@ import com.example.habittrackerapp.utils.NavItem
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun NavHostScreen(habitViewModel: HabitViewModel, userId: String) {
+fun NavHostScreen(habitViewModel: HabitViewModel) {
     val auth = FirebaseAuth.getInstance()
     var currentUser by remember { mutableStateOf(auth.currentUser) }
     val navController = rememberNavController()
@@ -56,9 +58,9 @@ fun NavHostScreen(habitViewModel: HabitViewModel, userId: String) {
     }) {
         NavHost(
             //لما نخلص خالص هنحط السطرين دول متمسحهومش
-           // navController = navController,
-           // startDestination = if (currentUser != null) "home" else "login"
-            navController = navController, startDestination = "/home",
+            // navController = navController,
+            // startDestination = if (currentUser != null) "home" else "login"
+            navController = navController, startDestination = "/login",
             modifier = Modifier.padding(it)
         ) {
             composable(route = "/login") {
@@ -74,13 +76,22 @@ fun NavHostScreen(habitViewModel: HabitViewModel, userId: String) {
                 RegisterScreen(navController)
             }
 
-            composable(route = "/home") {
+            composable(
+                route = "/home/{userId}",
+                arguments = listOf(
+                    navArgument("userId") { type = NavType.StringType })
+            ) { backStackEntry ->
                 bottomBarVisibility = true
-                HomeScreen(navController, habitViewModel=HabitViewModel(),userId = userId)
+                val userId = backStackEntry.arguments?.getString("userId") ?: ""
+                HomeScreen(navController, habitViewModel = HabitViewModel(), userId = userId)
             }
             composable(route = "/addHabit") {
                 bottomBarVisibility = false
-                AddHabit(navController = navController, habitViewModel = habitViewModel, userId = userId)
+                AddHabit(
+                    navController = navController,
+                    habitViewModel = habitViewModel,
+                    userId = "userId"
+                )
             }
             composable(route = "/editHabit") {
                 bottomBarVisibility = false
@@ -134,10 +145,10 @@ fun NavigationBottomBar(navController: NavHostController, items: List<NavItem>) 
 
     }
 }
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun NavHostScreenPreview() {
-    // Pass dummy values for preview purposes
-    NavHostScreen(habitViewModel = HabitViewModel(), userId = "dummyUserId")
-}
+//
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun NavHostScreenPreview() {
+//    // Pass dummy values for preview purposes
+//    NavHostScreen(habitViewModel = HabitViewModel(), userId = "dummyUserId")
+//}
