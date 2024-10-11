@@ -51,7 +51,8 @@ import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddHabit(navController: NavHostController, habitRepository: HabitRepository, userId: String) {    var habitName by remember { mutableStateOf("") }
+fun AddHabit(navController: NavHostController, habitRepository: HabitRepository, userId: String) {
+    var habitName by remember { mutableStateOf("") }
     var isHabitNameValid by remember { mutableStateOf(true) }
     var habitDescription by remember { mutableStateOf("") }
     var isHabitDescriptionValid by remember { mutableStateOf(true) }
@@ -75,13 +76,13 @@ fun AddHabit(navController: NavHostController, habitRepository: HabitRepository,
                 state = optionState,
                 selection = OptionSelection.Multiple(
                     options = listOf(
-                        Option(titleText = "Sat"),
-                        Option(titleText = "Sun"),
-                        Option(titleText = "Mon"),
-                        Option(titleText = "Tue"),
-                        Option(titleText = "Wed"),
-                        Option(titleText = "Thu"),
-                        Option(titleText = "Fri"),
+                        Option(titleText = "Saturday"),
+                        Option(titleText = "Sunday"),
+                        Option(titleText = "Monday"),
+                        Option(titleText = "Tuesday"),
+                        Option(titleText = "Wednesday"),
+                        Option(titleText = "Thursday"),
+                        Option(titleText = "Friday"),
                         Option(titleText = "Everyday"),
                     ),
                     onSelectOptions = { _, selectedOptions ->
