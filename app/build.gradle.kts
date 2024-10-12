@@ -81,5 +81,8 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation ("androidx.work:work-runtime-ktx:2.9.1") // Use the latest version
 
+    // Accompanist Permissions for handling runtime permissions in Compose
+    implementation ("com.google.accompanist:accompanist-permissions:0.30.1")
 }

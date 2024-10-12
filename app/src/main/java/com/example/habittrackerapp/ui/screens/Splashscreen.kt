@@ -1,19 +1,23 @@
 package com.example.habittrackerapp.ui.screens
 
 import android.content.Context
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import androidx.compose.ui.platform.LocalContext
 import com.example.habittrackerapp.utils.UserSession
+import com.example.habittrackerapp.R
 
 @Composable
 fun SplashScreen(navController: NavHostController) {
@@ -57,6 +61,11 @@ fun SplashScreen(navController: NavHostController) {
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
     ) {
-        Text(text = "Habit Tracker", fontSize = 24.sp)
+        // Replace Text with Image
+        Image(
+            painter = painterResource(id = R.drawable.ic_notification), // Replace with your icon resource
+            contentDescription = "Splash Icon", // Content description for accessibility
+            modifier = Modifier.size(300.dp) // Set the size of the icon
+        )
     }
 }
