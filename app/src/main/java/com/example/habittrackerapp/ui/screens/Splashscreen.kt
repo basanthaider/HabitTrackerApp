@@ -30,7 +30,7 @@ fun SplashScreen(navController: NavHostController) {
             // If the user chose to be remembered and is logged in, navigate to HomeScreen
             val currentUser = FirebaseAuth.getInstance().currentUser
             if (currentUser != null) {
-                navController.navigate("/home/${currentUser.uid}") {
+                navController.navigate("/home") {
                     popUpTo("/splash") { inclusive = true }
                 }
             } else {
