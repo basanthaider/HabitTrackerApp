@@ -88,17 +88,11 @@ fun HomeScreen(
             Row {
                 Text(
                     text = "Today's habits,$selectedDate",
-                    fontSize = 24.sp,
-                    modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+                    fontSize = 18.sp,
+                    modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                Button(onClick = {
-                    navController.navigate("/login" ){
-                        popUpTo("/login") { inclusive = true }
-                    }
-                }) {
-                    Text(text = "Logout")
-                }
+
             }
             LazyColumn(
                 modifier = Modifier.weight(0.5f)
@@ -148,9 +142,9 @@ fun HomeScreen(
                                     onCheckedChange = { /* Handle checkbox state change */ },
                                     modifier = Modifier.padding(end = 8.dp),
                                     colors = CheckboxDefaults.colors(
-                                        checkedColor = DarkBlue, // Customize checked color
-                                        uncheckedColor = White, // Customize unchecked color
-                                        checkmarkColor = White, // Customize checkmark color
+                                        checkedColor = DarkBlue,
+                                        uncheckedColor = White,
+                                        checkmarkColor = White,
                                     )
                                 )
                                 IconButton(
