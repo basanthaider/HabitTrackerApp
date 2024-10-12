@@ -68,7 +68,7 @@ fun HomeScreen(
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
 
     // State for the user's habits
-    var userHabits by remember { mutableStateOf(emptyList<String>()) } // Replace String with your Habit data model
+    var userHabits by remember { mutableStateOf<List<String>>(emptyList()) } // Replace String with your Habit data model
 
     // Fetch habits when the selected date changes
     LaunchedEffect(selectedDate) {
@@ -82,7 +82,9 @@ fun HomeScreen(
                 .fillMaxWidth()
         ) {
             Row(
-                Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -182,7 +184,16 @@ fun HomeScreen(
                                     )
                                 }
                                 IconButton(
-                                    onClick = { /* Handle delete action */ },
+                                    onClick = {
+                                        habitViewModel.deleteHabit(
+                                            userId,
+                                            habit,
+                                            navController.context
+                                        )
+                                        navController.navigate("/home") {
+                                            popUpTo("/home") { inclusive = true }
+                                        }
+                                    },
                                     modifier = Modifier.wrapContentWidth(align = Alignment.End)
                                 ) {
                                     Icon(
@@ -195,7 +206,7 @@ fun HomeScreen(
                         }
                     }
                 }
-                item{
+                item {
                     Box(modifier = Modifier.padding(8.dp))
                 }
 
