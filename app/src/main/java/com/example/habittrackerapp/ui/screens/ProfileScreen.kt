@@ -1,27 +1,26 @@
 package com.example.habittrackerapp.ui.screens
 
 import android.view.LayoutInflater
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -48,17 +47,26 @@ import java.time.LocalDate
 
 @Composable
 fun ProfileScreen(navController: NavHostController) {
-    Scaffold()
+    Surface()
     {
-        Column(
-            modifier = Modifier.padding(it),
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         )
         {
-            LineChart()
-            StreakCard()
-            Grid()
+            item {
+
+                LineChart()
+            }
+            item {
+
+                StreakCard()
+            }
+            item {
+
+                Grid()
+            }
 
         }
     }
@@ -70,14 +78,12 @@ fun LineChart() {
     val context = LocalContext.current
     val sampleData =
         listOf( // Replace with your actual data
-        Entry(1f, 10f),
-        Entry(2f, 15f),
-        Entry(3f, 20f),
-        Entry(4f, 18f),
-        Entry(5f, 25f)
-    )
-    val sampleData_ =
-
+            Entry(1f, 10f),
+            Entry(2f, 15f),
+            Entry(3f, 20f),
+            Entry(4f, 18f),
+            Entry(5f, 25f)
+        )
     AndroidView(
         factory = {
             val view = LayoutInflater.from(context).inflate(R.layout.line_chart, null)
@@ -331,7 +337,6 @@ fun Grid() {
 }
 
 
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun ProfileScreenPreview() {
@@ -356,11 +361,12 @@ fun GridPreview(){
     Grid()
 }*/
 data class Streak(
-    val date:LocalDate,
-    val streak:Int
+    val date: LocalDate,
+    val streak: Int
 )
+
 val list = listOf<Streak>(
-    Streak(LocalDate.now(),5),
-    Streak(LocalDate.now(),7)
+    Streak(LocalDate.now(), 5),
+    Streak(LocalDate.now(), 7)
 
 )

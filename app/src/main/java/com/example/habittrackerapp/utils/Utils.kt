@@ -10,3 +10,6 @@ object Utils {
     }
 
 }
+object UserSession {
+    var userId: String = ""
+}
