@@ -208,8 +208,10 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel) {
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Switch(checked = isReminder, onCheckedChange = {
-                    if (!isReminder)
+                    if (!isReminder){
                         timeState.show()
+
+                    }
 
                     if (isReminder)
                         reminderHours = 0
@@ -291,6 +293,7 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel) {
                             reminder = reminder,
                             startFrom = startFrom,
                             context = context,
+                            isReminder = isReminder,
                         )
                         navController.navigate("/home" ){
                             popUpTo("/home") { inclusive = true }

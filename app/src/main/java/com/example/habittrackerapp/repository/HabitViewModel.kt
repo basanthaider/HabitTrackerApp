@@ -10,7 +10,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-class HabitViewModel: ViewModel() {
+class HabitViewModel : ViewModel() {
 
     val db = Firebase.firestore
     fun addHabit(
@@ -24,6 +24,7 @@ class HabitViewModel: ViewModel() {
         longestStreak: Int = 0,
         totalPerfectDays: Int = 0,
         totalTimesCompleted: Int = 0,
+        isReminder: Boolean = false,
         isCompletedToday: Boolean = false,
         context: Context,
     ) {
@@ -33,6 +34,7 @@ class HabitViewModel: ViewModel() {
         // Step 2: Use document() with the custom document ID
         val habit = hashMapOf(
             "name" to name,
+            "isReminder" to isReminder,
             "description" to description,
             "repeat" to repeat,
             "reminder" to reminder,
@@ -43,7 +45,7 @@ class HabitViewModel: ViewModel() {
             "totalPerfectDays" to totalPerfectDays,
             "totalTimesCompleted" to totalTimesCompleted,
             "isCompletedToday" to isCompletedToday,
-            )
+        )
 
         db.collection("users").document(userId).collection("habits").document(habitDocId).set(habit)
             .addOnSuccessListener {
@@ -54,47 +56,44 @@ class HabitViewModel: ViewModel() {
             }
     }
 
-    suspend fun getHabitsForUserOnDate(userId: String, date: LocalDate): List<String> {
-        return try {
-            // Query all habits for the user
-            val habitsSnapshot = db.collection("users")
-                .document(userId)
+    suspend fun storeHabitsInMap(userId: String, date: LocalDate): List<Map<String, Boolean>> {
+        val habits = mutableListOf<Map<String, Boolean>>()
+
+        try {
+            val habitsSnapshot = db.collection("users").document(userId)
                 .collection("habits")
                 .get()
                 .await()
 
-            // Process the documents and filter based on the selected date
-            val habits = habitsSnapshot.documents.mapNotNull { document ->
-                val startFrom =
-                    LocalDate.parse(document.getString("startFrom") ?: return@mapNotNull null)
+            habitsSnapshot.documents.forEach { document ->
+                val startFrom = LocalDate.parse(document.getString("startFrom") ?: return@forEach)
                 val repeat = document.get("repeat") as? List<String> ?: emptyList()
-
-                // Get the day of the week in title case to match Firestore ("Saturday", "Monday", etc.)
                 val selectedDayOfWeek =
                     date.dayOfWeek.toString().lowercase().replaceFirstChar { it.uppercase() }
 
-                // Check if the habit should be shown on the selected date
                 when {
-                    // 1. If the habit repeats every day and starts before or on the selected date
                     repeat.contains("Everyday") && startFrom <= date -> {
-                        document.getString("name")
+                        habits.add(
+                            mapOf(
+                                document.getString("name")!! to document.getBoolean("isCompletedToday")!!
+                            )
+                        )
                     }
-                    // 2. If the habit repeats on specific days (e.g., "Saturday", "Monday") and matches the selected date
+
                     repeat.contains(selectedDayOfWeek) && startFrom <= date -> {
-                        document.getString("name")
+                        habits.add(
+                            mapOf(
+                                document.getString("name")!! to document.getBoolean("isCompletedToday")!!
+                            )
+                        )
                     }
-                    // 3. Otherwise, do not show this habit
-                    else -> null
                 }
             }
-
-            // Return the filtered habit names
-            habits
-
         } catch (e: Exception) {
-            // Handle the exception and return an empty list
-            emptyList()
+            // Handle exception
         }
+
+        return habits
     }
 
     //get all habits names and description for certain user
@@ -132,6 +131,20 @@ class HabitViewModel: ViewModel() {
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Habit deletion failed", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    fun doneHabit(userId: String, habitName: String, context: Context, isDone: Boolean) {
+        val habitDocId = "$userId-$habitName"
+
+        db.collection("users").document(userId).collection("habits").document(habitDocId)
+            .update("isCompletedToday", isDone)
+            .addOnSuccessListener {
+                if (isDone)
+                    Toast.makeText(context, "Mission Done", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Something Went Wrong", Toast.LENGTH_SHORT).show()
             }
     }
 }
