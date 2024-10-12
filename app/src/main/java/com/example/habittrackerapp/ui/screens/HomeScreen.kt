@@ -198,7 +198,8 @@ fun HomeScreen(
                     //Add Habit
                     FloatingActionButton(
                         onClick = {
-                            navController.navigate("/addHabit")
+                            navController.navigate("/addHabit/$userId")
+                            Log.d("userId","user:$userId")
                         },
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
