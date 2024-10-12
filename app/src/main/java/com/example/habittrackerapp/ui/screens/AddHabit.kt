@@ -75,6 +75,7 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        Log.d("trace", "UserIDDDDDDDDD: $userId")
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
             OptionDialog(
                 state = optionState,
@@ -290,9 +291,10 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel) {
                             reminder = reminder,
                             startFrom = startFrom,
                             context = context,
-                            navController = navController
                         )
-                        navController.navigate("/home")
+                        navController.navigate("/home" ){
+                            popUpTo("/home") { inclusive = true }
+                        }
                     } else {
                         if (habitName.isBlank()) isHabitNameValid = false
                         if (habitDescription.isBlank()) isHabitDescriptionValid = false

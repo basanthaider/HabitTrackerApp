@@ -13,6 +13,7 @@ import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import androidx.compose.ui.platform.LocalContext
+import com.example.habittrackerapp.utils.UserSession
 
 @Composable
 fun SplashScreen(navController: NavHostController) {
@@ -30,6 +31,7 @@ fun SplashScreen(navController: NavHostController) {
             // If the user chose to be remembered and is logged in, navigate to HomeScreen
             val currentUser = FirebaseAuth.getInstance().currentUser
             if (currentUser != null) {
+                UserSession.userId = currentUser.uid
                 navController.navigate("/home") {
                     popUpTo("/splash") { inclusive = true }
                 }
