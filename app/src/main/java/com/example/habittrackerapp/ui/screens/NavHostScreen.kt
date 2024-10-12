@@ -112,12 +112,18 @@ fun NavHostScreen(habitViewModel: HabitViewModel) {
                 val userId = backStackEntry.arguments?.getString("userId") ?: ""
                 HomeScreen(navController, habitViewModel = HabitViewModel(), userId = userId)
             }
-            composable(route = "/addHabit") {
+            composable(route = "/addHabit/{userId}",
+                arguments = listOf(
+                    navArgument("userId") { type = NavType.StringType })
+
+                ) {backStackEntry ->
                 bottomBarVisibility = false
+                topAppBarVisibility=true
+                val userId = backStackEntry.arguments?.getString("userId") ?: ""
                 AddHabit(
                     navController = navController,
                     habitViewModel = habitViewModel,
-                    userId = "userId"
+                    userId = userId
                 )
             }
             composable(route = "/editHabit") {

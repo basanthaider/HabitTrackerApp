@@ -53,7 +53,6 @@ class HabitViewModel: ViewModel() {
         db.collection("users").document(userId).collection("habits").document(habitDocId).set(habit)
             .addOnSuccessListener {
                 Toast.makeText(context, "Habit added successfully", Toast.LENGTH_SHORT).show()
-                navController.navigate("/home")
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Something Went Wrong", Toast.LENGTH_SHORT).show()
@@ -84,13 +83,10 @@ class HabitViewModel: ViewModel() {
                     // 1. If the habit repeats every day and starts before or on the selected date
                     repeat.contains("Everyday") && startFrom <= date -> {
                         document.getString("name")
-                        document.getString("description")
-
                     }
                     // 2. If the habit repeats on specific days (e.g., "Saturday", "Monday") and matches the selected date
                     repeat.contains(selectedDayOfWeek) && startFrom <= date -> {
                         document.getString("name")
-                        document.getString("description")
                     }
                     // 3. Otherwise, do not show this habit
                     else -> null

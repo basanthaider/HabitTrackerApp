@@ -286,6 +286,7 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel, u
                             context = context,
                             navController = navController
                         )
+                        navController.navigate("/home/$userId")
                     } else {
                         if (habitName.isBlank()) isHabitNameValid = false
                         if (habitDescription.isBlank()) isHabitDescriptionValid = false
