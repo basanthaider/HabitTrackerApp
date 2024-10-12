@@ -94,7 +94,7 @@ fun NavHostScreen(habitViewModel: HabitViewModel) {
                 )
             }
             composable(route = "/editHabit") {
-                bottomBarVisibility = false
+                bottomBarVisibility = true
                 EditHabit(navController)
             }
             composable(route = "/profile") {
