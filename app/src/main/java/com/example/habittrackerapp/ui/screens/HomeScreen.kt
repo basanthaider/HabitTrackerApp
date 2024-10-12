@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -63,20 +64,19 @@ fun HomeScreen(
     val calendarState = rememberUseCaseState()
 
     val userId = UserSession.userId
-
+    val context = LocalContext.current
     // State for selected date
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
-
     // State for the user's habits
-    var userHabits by remember { mutableStateOf<List<String>>(emptyList()) } // Replace String with your Habit data model
-
+    var userHabits by remember { mutableStateOf<List<Map<String, Boolean>>>(emptyList()) }
     // Fetch habits when the selected date changes
     LaunchedEffect(selectedDate) {
-        userHabits = habitViewModel.getHabitsForUserOnDate(userId, selectedDate)
+        userHabits = habitViewModel.storeHabitsInMap(userId, selectedDate)
     }
 
 
     Surface {
+        Log.d("trace", "userHabitss: $userHabits")
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -119,11 +119,12 @@ fun HomeScreen(
                     }
                 }
             }
+
             LazyColumn(
                 modifier = Modifier.weight(0.5f)
             ) {
                 items(userHabits) { habit ->
-                    Log.d("trace", habit)
+                    var isDone by remember { mutableStateOf(habit.values.first()) }
                     Card(
                         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                         shape = RoundedCornerShape(8.dp),
@@ -152,7 +153,7 @@ fun HomeScreen(
                                     .padding(end = 16.dp)
                             ) {
                                 Text(
-                                    text = habit,
+                                    text = habit.keys.first(),
                                     style = MaterialTheme.typography.headlineSmall,
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold,
@@ -164,8 +165,23 @@ fun HomeScreen(
                                 horizontalArrangement = Arrangement.End
                             ) {
                                 Checkbox(
-                                    checked = false,
-                                    onCheckedChange = { /* Handle checkbox state change */ },
+                                    checked = isDone,
+                                    onCheckedChange = {
+                                        isDone = !isDone
+                                        val updatedHabitss = userHabits.map {
+                                            if (it.keys.first() == habit.keys.first()) {
+                                                mapOf(it.keys.first() to isDone) // Update the map with the new value
+                                            } else {
+                                                it}
+                                        }
+                                        userHabits = updatedHabitss
+                                        habitViewModel.doneHabit(
+                                            userId,
+                                            habit.keys.first(),
+                                            context,
+                                            isDone
+                                        )
+                                    },
                                     modifier = Modifier.padding(end = 8.dp),
                                     colors = CheckboxDefaults.colors(
                                         checkedColor = DarkBlue,
@@ -187,7 +203,7 @@ fun HomeScreen(
                                     onClick = {
                                         habitViewModel.deleteHabit(
                                             userId,
-                                            habit,
+                                            habit.keys.first(),
                                             navController.context
                                         )
                                         navController.navigate("/home") {
