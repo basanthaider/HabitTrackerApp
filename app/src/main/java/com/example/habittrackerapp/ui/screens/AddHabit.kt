@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -33,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.habittrackerapp.repository.HabitViewModel
+import com.example.habittrackerapp.ui.theme.Blue
+import com.example.habittrackerapp.utils.UserSession
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
@@ -51,7 +54,7 @@ import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel, userId: String) {
+fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel) {
     var habitName by remember { mutableStateOf("") }
     var isHabitNameValid by remember { mutableStateOf(true) }
     var habitDescription by remember { mutableStateOf("") }
@@ -66,12 +69,13 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel, u
     var isReminder by remember { mutableStateOf(false) }
     var startFrom by remember { mutableStateOf(LocalDate.now()) }
     val context = LocalContext.current
+    val userId = UserSession.userId
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Column {
+        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
             OptionDialog(
                 state = optionState,
                 selection = OptionSelection.Multiple(
@@ -164,6 +168,7 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel, u
                     onClick = {
                         optionState.show()
                     },
+                    colors = ButtonDefaults.buttonColors(Blue),
                     modifier = Modifier
                         .padding(top = 16.dp)
                         .width(120.dp)
@@ -244,6 +249,7 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel, u
                         calendarState.show()
                         Log.d("trace", "Selected date: $startFrom")
                     },
+                    colors = ButtonDefaults.buttonColors(Blue),
                     modifier = Modifier
                         .padding(top = 16.dp)
                         .width(120.dp)
@@ -286,12 +292,13 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel, u
                             context = context,
                             navController = navController
                         )
-                        navController.navigate("/home/$userId")
+                        navController.navigate("/home")
                     } else {
                         if (habitName.isBlank()) isHabitNameValid = false
                         if (habitDescription.isBlank()) isHabitDescriptionValid = false
                     }
                 },
+                colors = ButtonDefaults.buttonColors(Blue),
                 modifier = Modifier
                     .padding(top = 16.dp)
                     .fillMaxWidth()

@@ -36,6 +36,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import com.example.habittrackerapp.utils.UserSession
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
@@ -201,7 +202,6 @@ fun LoginScreen(navController: NavHostController) {
                 }
 
                 // Login Button
-                // Login Button
                 Button(
                     onClick = {
                         if (email.isBlank() || password.isBlank()) {
@@ -267,14 +267,16 @@ private fun loginUser(
                 Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
                 Log.d("LoginUser", "Login successful : ${task.result.user?.uid}")
                 val currentUser = FirebaseAuth.getInstance().currentUser
-                val userId = currentUser?.uid ?: ""
-                navController.navigate("/home/$userId") {
-                    popUpTo("/login") { inclusive = true }
+                UserSession.userId = currentUser?.uid ?: ""
+                navController.navigate("/home" ){
+                popUpTo("/login") { inclusive = true }
                 }
             } else {
+                // Handle the error (e.g., show a Snackbar with an error message)
                 val errorMessage = task.exception?.message ?: "Login failed"
-                Log.e("LoginUser", errorMessage)
+                Log.e("LoginUser", errorMessage) // Log the error
                 Toast.makeText(context, "Incorrect email or password, please try again", Toast.LENGTH_SHORT).show()
+
             }
         }
 }

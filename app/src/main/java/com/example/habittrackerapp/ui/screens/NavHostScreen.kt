@@ -2,12 +2,11 @@ package com.example.habittrackerapp.ui.screens
 
 import LoginScreen
 import RegisterScreen
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
@@ -29,12 +28,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.example.habittrackerapp.R
 import com.example.habittrackerapp.repository.HabitViewModel
 import com.example.habittrackerapp.ui.theme.Blue
@@ -56,6 +53,11 @@ fun NavHostScreen(habitViewModel: HabitViewModel) {
         mutableStateOf(currentUser != null)
     }
 
+    val navList = listOf(
+        NavItem(label = "/home", icon = Icons.Default.Home),
+        NavItem(label = "/profile", icon = Icons.Default.Person),
+        NavItem(label = "/settingsScreen", icon = Icons.Default.Settings),
+    )
     Scaffold(
         topBar = {
             AnimatedVisibility(visible = topAppBarVisibility) {
@@ -66,15 +68,9 @@ fun NavHostScreen(habitViewModel: HabitViewModel) {
             AnimatedVisibility(visible = bottomBarVisibility) {
                 NavigationBottomBar(
                     navController = navController,
-                    items = listOf(
-                        NavItem(label = "/home", icon = Icons.Default.Home),
-                        NavItem(label = "/profile", icon = Icons.Default.Person)
-                    )
+                    items = navList
                 )
-
             }
-
-
         }) {
         NavHost(
             //لما نخلص خالص هنحط السطرين دول متمسحهومش
@@ -107,29 +103,18 @@ fun NavHostScreen(habitViewModel: HabitViewModel) {
                 RegisterScreen(navController)
             }
 
-            composable(
-                route = "/home/{userId}",
-                arguments = listOf(
-                    navArgument("userId") { type = NavType.StringType })
-            ) { backStackEntry ->
+            composable(route = "/home") { // Remove {userId} from route
                 bottomBarVisibility = true
-                topAppBarVisibility = true // Hide top app bar on login screen
-                val userId = backStackEntry.arguments?.getString("userId") ?: ""
-                HomeScreen(navController, habitViewModel = HabitViewModel(), userId = userId)
+                topAppBarVisibility = true
+                HomeScreen(
+                    navController,
+                    habitViewModel = HabitViewModel()
+                ) // No need to pass userId
             }
-            composable(route = "/addHabit/{userId}",
-                arguments = listOf(
-                    navArgument("userId") { type = NavType.StringType })
-
-                ) {backStackEntry ->
+            composable(route = "/addHabit") { // Remove {userId} from route
                 bottomBarVisibility = false
-                topAppBarVisibility=true
-                val userId = backStackEntry.arguments?.getString("userId") ?: ""
-                AddHabit(
-                    navController = navController,
-                    habitViewModel = habitViewModel,
-                    userId = userId
-                )
+                topAppBarVisibility = true
+                AddHabit(navController, habitViewModel = habitViewModel) // No need to pass userId
             }
             composable(route = "/editHabit") {
                 bottomBarVisibility = true
@@ -215,22 +200,14 @@ fun TopAppBar(navController: NavHostController) {
             navigationIconContentColor = White
         ), actions = {
             IconButton(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    navController.navigate("/addHabit")
+                },
             )
             {
                 Icon(
-                    imageVector = Icons.Filled.Notifications,
-                    contentDescription = "Notification Icon",
-                    tint = White
-                )
-            }
-            IconButton(
-                onClick = { navController.navigate("/settingsScreen") },
-            )
-            {
-                Icon(
-                    imageVector = Icons.Filled.Settings,
-                    contentDescription = " Settings Icon",
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Add Icon",
                     tint = White
                 )
             }
