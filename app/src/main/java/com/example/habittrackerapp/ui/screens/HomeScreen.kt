@@ -1,6 +1,8 @@
 package com.example.habittrackerapp.ui.screens
 
 import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +10,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,9 +22,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxColors
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,12 +39,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.habittrackerapp.R
 import com.example.habittrackerapp.repository.HabitViewModel
 import com.example.habittrackerapp.ui.theme.Blue
+import com.example.habittrackerapp.ui.theme.DarkBlue
 import com.example.habittrackerapp.ui.theme.White
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
@@ -74,7 +87,7 @@ fun HomeScreen(
         ) {
             Row {
                 Text(
-                    text = "My Habits for $selectedDate",
+                    text = "Today's habits,$selectedDate",
                     fontSize = 24.sp,
                     modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                 )
@@ -104,16 +117,65 @@ fun HomeScreen(
                     ) {
                         Row(
                             modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(text = habit, color = White, fontSize = 24.sp)
-                            Spacer(modifier = Modifier.weight(1f))
-                            Checkbox(checked = false, onCheckedChange = {
-
-                            })
+                            Image(
+                                painter = painterResource(id = R.drawable.habit),
+                                contentDescription = "streak",
+                                modifier = Modifier.size(70.dp)
+                                    .padding(8.dp)
+                            )
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(end = 16.dp)
+                            ) {
+                                Text(
+                                    text = habit,
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                                // Optional: Add a subtitle or description here
+                            }
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                Checkbox(
+                                    checked = false,
+                                    onCheckedChange = { /* Handle checkbox state change */ },
+                                    modifier = Modifier.padding(end = 8.dp),
+                                    colors = CheckboxDefaults.colors(
+                                        checkedColor = DarkBlue, // Customize checked color
+                                        uncheckedColor = White, // Customize unchecked color
+                                        checkmarkColor = White, // Customize checkmark color
+                                    )
+                                )
+                                IconButton(
+                                    onClick = { navController.navigate("/editHabit") },
+                                    modifier = Modifier.wrapContentWidth(align = Alignment.End)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_edit),
+                                        contentDescription = "Edit",
+                                        tint = Color.Unspecified
+                                    )
+                                }
+                                IconButton(
+                                    onClick = { /* Handle delete action */ },
+                                    modifier = Modifier.wrapContentWidth(align = Alignment.End)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_delete),
+                                        contentDescription = "Delete",
+                                        tint = Color.Unspecified
+                                    )
+                                }
+                            }
                         }
                     }
-
                 }
 
             }
