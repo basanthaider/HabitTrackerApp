@@ -51,6 +51,7 @@ import com.example.habittrackerapp.repository.HabitViewModel
 import com.example.habittrackerapp.ui.theme.Blue
 import com.example.habittrackerapp.ui.theme.DarkBlue
 import com.example.habittrackerapp.ui.theme.White
+import com.google.firebase.auth.FirebaseAuth
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
@@ -73,6 +74,9 @@ fun HomeScreen(
 
     // State for the user's habits
     var userHabits by remember { mutableStateOf(emptyList<String>()) } // Replace String with your Habit data model
+
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val userId = currentUser?.uid ?: ""
 
     // Fetch habits when the selected date changes
     LaunchedEffect(selectedDate) {

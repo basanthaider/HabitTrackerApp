@@ -80,9 +80,14 @@ fun NavHostScreen(habitViewModel: HabitViewModel) {
             //لما نخلص خالص هنحط السطرين دول متمسحهومش
             // navController = navController,
             // startDestination = if (currentUser != null) "home" else "login"
-            navController = navController, startDestination = "/login",
+            navController = navController, startDestination = "/Splash",
             modifier = Modifier.padding(it)
         ) {
+            composable(route = "/splash") {
+                bottomBarVisibility = false
+                topAppBarVisibility = false
+                SplashScreen(navController)
+            }
             composable(route = "/login") {
                 bottomBarVisibility = false
                 topAppBarVisibility = false
