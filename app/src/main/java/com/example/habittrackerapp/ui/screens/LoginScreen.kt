@@ -201,12 +201,13 @@ fun LoginScreen(navController: NavHostController) {
                 }
 
                 // Login Button
+                // Login Button
                 Button(
                     onClick = {
                         if (email.isBlank() || password.isBlank()) {
                             Toast.makeText(context, "Please enter both email and password", Toast.LENGTH_SHORT).show()
                         } else {
-                            loginUser(email, password, navController, context)
+                            loginUser(email, password, navController, context, rememberMeChecked) // Pass rememberMeChecked
                         }
                     },
                     modifier = Modifier
@@ -220,6 +221,7 @@ fun LoginScreen(navController: NavHostController) {
                 ) {
                     Text(text = "LOGIN", color = Color.White)
                 }
+
 
                 // Sign Up text with a clickable link
                 Row(
@@ -246,28 +248,44 @@ fun LoginScreen(navController: NavHostController) {
 }
 
 // Function to handle login
-private fun loginUser(email: String, password: String, navController: NavHostController,context:Context) {
+// Function to handle login
+private fun loginUser(
+    email: String,
+    password: String,
+    navController: NavHostController,
+    context: Context,
+    rememberMe: Boolean // New parameter
+) {
     val auth = FirebaseAuth.getInstance()
 
     auth.signInWithEmailAndPassword(email, password)
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Toast.makeText( context, "Login successful", Toast.LENGTH_SHORT).show()
-                // Login successful, navigate to home screen
+                // Save login state based on "Remember me" checkbox
+                saveLoginState(context, rememberMe)
+
+                Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
                 Log.d("LoginUser", "Login successful : ${task.result.user?.uid}")
                 val currentUser = FirebaseAuth.getInstance().currentUser
                 val userId = currentUser?.uid ?: ""
-                navController.navigate("/home/$userId" ){
-                popUpTo("/login") { inclusive = true }
+                navController.navigate("/home/$userId") {
+                    popUpTo("/login") { inclusive = true }
                 }
             } else {
-                // Handle the error (e.g., show a Snackbar with an error message)
                 val errorMessage = task.exception?.message ?: "Login failed"
-                Log.e("LoginUser", errorMessage) // Log the error
+                Log.e("LoginUser", errorMessage)
                 Toast.makeText(context, "Incorrect email or password, please try again", Toast.LENGTH_SHORT).show()
-
             }
         }
+}
+
+// Function to save the login state
+private fun saveLoginState(context: Context, isLoggedIn: Boolean) {
+    val sharedPref = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+    with(sharedPref.edit()) {
+        putBoolean("is_logged_in", isLoggedIn)
+        apply()
+    }
 }
 
 
