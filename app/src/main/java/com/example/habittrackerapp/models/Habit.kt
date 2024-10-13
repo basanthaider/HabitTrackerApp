@@ -8,7 +8,7 @@ data class Habit(
     val userId: String,*/
     val name: String = "",
     val description: String ="",
-    /*val reminder: Reminder?, // Nullable for habits without reminders
+    val reminder: Reminder?, // Nullable for habits without reminders
     val repeat: List<String>, // e.g., ["Everyday", "Weekdays"]
     val startFrom: String // Date string (e.g., "2024-10-10")*/
 )

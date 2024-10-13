@@ -103,7 +103,7 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Today's habits,$selectedDate",
+                            text = "Today's habits, $selectedDate",
                             fontSize = 18.sp,
                             color = White,
                             modifier = Modifier.padding(8.dp),
@@ -172,7 +172,8 @@ fun HomeScreen(
                                             if (it.keys.first() == habit.keys.first()) {
                                                 mapOf(it.keys.first() to isDone) // Update the map with the new value
                                             } else {
-                                                it}
+                                                it
+                                            }
                                         }
                                         userHabits = updatedHabitss
                                         habitViewModel.doneHabit(
@@ -190,7 +191,9 @@ fun HomeScreen(
                                     )
                                 )
                                 IconButton(
-                                    onClick = { navController.navigate("/editHabit") },
+                                    onClick = {
+                                        navController.navigate("/editHabit/${habit.keys.first()}")
+                                    },
                                     modifier = Modifier.wrapContentWidth(align = Alignment.End)
                                 ) {
                                     Icon(
@@ -204,7 +207,7 @@ fun HomeScreen(
                                         habitViewModel.deleteHabit(
                                             userId,
                                             habit.keys.first(),
-                                            navController.context
+                                            context
                                         )
                                         navController.navigate("/home") {
                                             popUpTo("/home") { inclusive = true }
