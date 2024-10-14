@@ -155,7 +155,14 @@ class HabitViewModel : ViewModel() {
 
         // Check if fields have changed and only add changed fields to updates
         if (originalName != newName) {
+            // If the name has changed, create a new document ID
+            val newHabitDocId = "$userId-$newName"
+
             updates["name"] = newName
+            // Delete the old habit
+            deleteHabit(userId, originalName, context)
+            // Create a new habit with updated information
+            addHabit(userId, newName, description, repeat, reminder, startFrom, context = context)
         }
         if (description.isNotBlank()) {
             updates["description"] = description
@@ -190,6 +197,7 @@ class HabitViewModel : ViewModel() {
                 Toast.makeText(context, "Error retrieving habit", Toast.LENGTH_SHORT).show()
             }
     }
+
 
 
 
