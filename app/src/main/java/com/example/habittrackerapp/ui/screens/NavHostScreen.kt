@@ -76,7 +76,8 @@ fun NavHostScreen(habitViewModel: HabitViewModel) {
             //لما نخلص خالص هنحط السطرين دول متمسحهومش
             // navController = navController,
             // startDestination = if (currentUser != null) "home" else "login"
-            navController = navController, startDestination = "/Splash",
+            navController = navController,
+            startDestination = "/Splash",
             modifier = Modifier.padding(it)
         ) {
             composable(route = "/splash") {
@@ -116,11 +117,12 @@ fun NavHostScreen(habitViewModel: HabitViewModel) {
                 topAppBarVisibility = true
                 AddHabit(navController, habitViewModel = habitViewModel) // No need to pass userId
             }
-            composable(route = "/editHabit") {
+            composable(route = "/editHabit/{habitName}") { backStackEntry ->
+                val habitName = backStackEntry.arguments?.getString("habitName") ?: return@composable
                 bottomBarVisibility = true
                 topAppBarVisibility = true
 
-                EditHabit(navController)
+                EditHabit(navController, habitViewModel, habitName)
             }
             composable(route = "/settingsScreen") {
                 bottomBarVisibility = true

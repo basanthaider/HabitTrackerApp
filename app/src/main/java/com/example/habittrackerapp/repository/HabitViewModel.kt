@@ -3,6 +3,9 @@ package com.example.habittrackerapp.repository
 import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
+import com.example.habittrackerapp.models.Habit
+import com.example.habittrackerapp.models.Reminder
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
@@ -13,12 +16,13 @@ import java.time.format.DateTimeFormatter
 class HabitViewModel : ViewModel() {
 
     val db = Firebase.firestore
+
     fun addHabit(
         userId: String,
         name: String,
         description: String,
         repeat: List<String>,
-        reminder: LocalTime,
+        reminder: LocalTime?,
         startFrom: LocalDate,
         currentStreak: Int = 0,
         longestStreak: Int = 0,
@@ -28,16 +32,14 @@ class HabitViewModel : ViewModel() {
         isCompletedToday: Boolean = false,
         context: Context,
     ) {
-        // Step 1: Generate a document ID based on userId and habit name
         val habitDocId = "$userId-$name"
 
-        // Step 2: Use document() with the custom document ID
         val habit = hashMapOf(
             "name" to name,
             "isReminder" to isReminder,
             "description" to description,
             "repeat" to repeat,
-            "reminder" to reminder,
+            "reminder" to reminder?.toString(), // Convert LocalTime to String
             "startFrom" to startFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
             "userId" to userId,
             "currentStreak" to currentStreak,
@@ -66,7 +68,8 @@ class HabitViewModel : ViewModel() {
                 .await()
 
             habitsSnapshot.documents.forEach { document ->
-                val startFrom = LocalDate.parse(document.getString("startFrom") ?: return@forEach)
+                val startFromStr = document.getString("startFrom") ?: return@forEach
+                val startFrom = LocalDate.parse(startFromStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 val repeat = document.get("repeat") as? List<String> ?: emptyList()
                 val selectedDayOfWeek =
                     date.dayOfWeek.toString().lowercase().replaceFirstChar { it.uppercase() }
@@ -75,7 +78,7 @@ class HabitViewModel : ViewModel() {
                     repeat.contains("Everyday") && startFrom <= date -> {
                         habits.add(
                             mapOf(
-                                document.getString("name")!! to document.getBoolean("isCompletedToday")!!
+                                document.getString("name")!! to (document.getBoolean("isCompletedToday") ?: false)
                             )
                         )
                     }
@@ -83,43 +86,84 @@ class HabitViewModel : ViewModel() {
                     repeat.contains(selectedDayOfWeek) && startFrom <= date -> {
                         habits.add(
                             mapOf(
-                                document.getString("name")!! to document.getBoolean("isCompletedToday")!!
+                                document.getString("name")!! to (document.getBoolean("isCompletedToday") ?: false)
                             )
                         )
                     }
                 }
             }
         } catch (e: Exception) {
-            // Handle exception
+            // Handle exception (e.g., log the error)
         }
 
         return habits
     }
 
-    //get all habits names and description for certain user
-//      fun getHabits(userId: String): List<Habit> {
-//          val habits = mutableListOf<Habit>()
-//          db.collection("users")
-//              .document(userId)
-//              .collection("habits")
-//              .get()
-//              .addOnSuccessListener { result ->
-//                  for (document in result) {
-//                      val documentData = document.data!! // Assuming data exists
-//
-//                      val habitName = documentData["name"] as String
-//                      val habitDescription = documentData["description"] as String
-//
-//                      habits.add(Habit(name = habitName, description = habitDescription))
-//                      Log.d("habits","habit list : $habits")
-//                      Log.d("doc","retrieved docs : $document")
-//                  }
-//              }
-//              .addOnFailureListener { exception ->
-//                  Log.e("error", "Error getting habits:$exception")
-//              }
-//          return habits
-//      }
+    suspend fun getHabitByName(habitName: String): Habit? {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return null
+        val habitDocId = "$userId-$habitName"
+
+        return try {
+            val document = db.collection("users").document(userId)
+                .collection("habits").document(habitDocId).get().await()
+            if (document.exists()) {
+                val name = document.getString("name") ?: ""
+                val description = document.getString("description") ?: ""
+                val repeat = document.get("repeat") as? List<String> ?: emptyList()
+                val reminderStr = document.getString("reminder")
+                val reminder = reminderStr?.let {
+                    val parts = it.split(":")
+                    if (parts.size >= 2) {
+                        LocalTime.of(parts[0].toInt(), parts[1].toInt())
+                    } else {
+                        null
+                    }
+                }
+                val startFrom = document.getString("startFrom") ?: ""
+
+                Habit(
+                    name = name,
+                    description = description,
+                    reminder = reminder?.let {
+                        Reminder(it.hour, it.minute, it.second, it.nano)
+                    },
+                    repeat = repeat,
+                    startFrom = startFrom
+                )
+            } else null
+        } catch (e: Exception) {
+            null // Handle exceptions (e.g., log the error)
+        }
+    }
+
+    fun updateHabit(
+        originalName: String, // To identify which habit to update
+        newName: String,
+        description: String,
+        repeat: List<String>,
+        reminder: LocalTime?,
+        startFrom: LocalDate
+    ) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val habitDocId = "$userId-$originalName" // Use originalName to locate the habit
+
+        val updatedHabit = hashMapOf(
+            "name" to newName,
+            "description" to description,
+            "repeat" to repeat,
+            "reminder" to reminder?.toString(),
+            "startFrom" to startFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        )
+
+        db.collection("users").document(userId).collection("habits").document(habitDocId)
+            .update(updatedHabit)
+            .addOnSuccessListener {
+                // Handle success (e.g., show a Toast)
+            }
+            .addOnFailureListener {
+                // Handle failure (e.g., show a Toast)
+            }
+    }
 
     fun deleteHabit(userId: String, habitName: String, context: Context) {
         val habitDocId = "$userId-$habitName"
