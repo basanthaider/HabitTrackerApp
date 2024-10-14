@@ -70,7 +70,9 @@ class HabitViewModel : ViewModel() {
             habitsSnapshot.documents.forEach { document ->
                 val startFromStr = document.getString("startFrom") ?: return@forEach
                 val startFrom = LocalDate.parse(startFromStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                val repeat = document.get("repeat") as? List<String> ?: emptyList()
+                val repeat = document.get("repeat")
+
+                        as? List<String> ?: emptyList()
                 val selectedDayOfWeek =
                     date.dayOfWeek.toString().lowercase().replaceFirstChar { it.uppercase() }
 
@@ -148,46 +150,38 @@ class HabitViewModel : ViewModel() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val habitDocId = "$userId-$originalName" // Use originalName to locate the habit
 
-        // Create a map for the updated habit details
-        val updatedHabit = hashMapOf(
-            "name" to newName,
-            "description" to description,
-            "repeat" to repeat,
-            "reminder" to reminder?.toString(),
-            "startFrom" to startFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-        )
+        // Create a map to hold the updates
+        val updates = hashMapOf<String, Any>()
+
+        // Check if fields have changed and only add changed fields to updates
+        if (originalName != newName) {
+            updates["name"] = newName
+        }
+        if (description.isNotBlank()) {
+            updates["description"] = description
+        }
+        if (repeat.isNotEmpty()) {
+            updates["repeat"] = repeat
+        }
+        if (reminder != null) {
+            updates["reminder"] = reminder.toString()
+        }
+        updates["startFrom"] = startFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
         // Check if the habit exists before updating
         db.collection("users").document(userId).collection("habits").document(habitDocId)
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    // Check if the name has changed
-                    if (originalName != newName) {
-                        val newHabitDocId = "$userId-$newName" // Create a new document ID
-
-                        // Create a new document with the updated details
-                        db.collection("users").document(userId).collection("habits").document(newHabitDocId)
-                            .set(updatedHabit)
-                            .addOnSuccessListener {
-                                // Delete the old document after successful creation
-                                db.collection("users").document(userId).collection("habits").document(habitDocId).delete()
-                                Toast.makeText(context, "Habit updated successfully", Toast.LENGTH_SHORT).show()
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(context, "Habit update failed", Toast.LENGTH_SHORT).show()
-                            }
-                    } else {
-                        // If the name hasn't changed, simply update the existing document
-                        db.collection("users").document(userId).collection("habits").document(habitDocId)
-                            .update(updatedHabit)
-                            .addOnSuccessListener {
-                                Toast.makeText(context, "Habit updated successfully", Toast.LENGTH_SHORT).show()
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(context, "Habit update failed", Toast.LENGTH_SHORT).show()
-                            }
-                    }
+                    // If the name hasn't changed, simply update the existing document with changed fields
+                    db.collection("users").document(userId).collection("habits").document(habitDocId)
+                        .update(updates)
+                        .addOnSuccessListener {
+                            Toast.makeText(context, "Habit updated successfully", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(context, "Habit update failed", Toast.LENGTH_SHORT).show()
+                        }
                 } else {
                     Toast.makeText(context, "Habit does not exist", Toast.LENGTH_SHORT).show()
                 }
@@ -196,6 +190,8 @@ class HabitViewModel : ViewModel() {
                 Toast.makeText(context, "Error retrieving habit", Toast.LENGTH_SHORT).show()
             }
     }
+
+
 
     fun deleteHabit(userId: String, habitName: String, context: Context) {
         val habitDocId = "$userId-$habitName"

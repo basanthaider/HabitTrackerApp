@@ -2,7 +2,9 @@ package com.example.habittrackerapp.ui.screens
 
 import android.util.Log
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,14 +17,20 @@ import androidx.navigation.NavHostController
 import com.example.habittrackerapp.models.Habit
 import com.example.habittrackerapp.repository.HabitViewModel
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
+import com.maxkeppeler.sheets.calendar.CalendarDialog
+import com.maxkeppeler.sheets.calendar.models.CalendarConfig
+import com.maxkeppeler.sheets.calendar.models.CalendarSelection
+import com.maxkeppeler.sheets.clock.ClockDialog
+import com.maxkeppeler.sheets.clock.models.ClockConfig
+import com.maxkeppeler.sheets.clock.models.ClockSelection
 import com.maxkeppeler.sheets.option.OptionDialog
 import com.maxkeppeler.sheets.option.models.DisplayMode
 import com.maxkeppeler.sheets.option.models.Option
 import com.maxkeppeler.sheets.option.models.OptionConfig
 import com.maxkeppeler.sheets.option.models.OptionSelection
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,6 +48,8 @@ fun EditHabit(
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf("") }
     val optionState = rememberUseCaseState()
+    val calendarState = rememberUseCaseState()
+    val timeState = rememberUseCaseState()
     val context = LocalContext.current
 
     LaunchedEffect(habitName) {
@@ -88,7 +98,10 @@ fun EditHabit(
         } ?: run {
             habit?.let {
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.Start
                 ) {
@@ -111,25 +124,30 @@ fun EditHabit(
                         label = { Text("Description") },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    Button(
-                        onClick = { optionState.show() },
+                    // Repeat Days Button
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(top = 16.dp)
                     ) {
-                        Text(text = "Select Repeat Days")
-                    }
+                        Button(
+                            onClick = { optionState.show() },
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text(text = "Select Repeat Days")
+                        }
 
-                    Surface(
-                        modifier = Modifier.padding(top = 16.dp),
-                        color = Color(0xffe1e2ec),
-                        shape = RoundedCornerShape(16)
-                    ) {
-                        Text(
-                            text = repeat.joinToString(", ") ?: "No days selected",
-                            modifier = Modifier.padding(16.dp),
-                            fontSize = 15.sp
-                        )
+                        Surface(
+                            color = Color(0xffe1e2ec),
+                            shape = RoundedCornerShape(16)
+                        ) {
+                            Text(
+                                text = repeat.joinToString(", ") ?: "No days selected",
+                                modifier = Modifier.padding(16.dp),
+                                fontSize = 15.sp
+                            )
+                        }
                     }
 
                     OptionDialog(
@@ -150,9 +168,78 @@ fun EditHabit(
                         config = OptionConfig(mode = DisplayMode.GRID_VERTICAL)
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    // Save Changes Button
+                    // Start From Button
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(top = 16.dp)
+                    ) {
+                        Button(
+                            onClick = { calendarState.show() },
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text(text = "Start From")
+                        }
+
+                        Surface(
+                            modifier = Modifier.padding(top = 16.dp),
+                            color = Color(0xffe1e2ec),
+                            shape = RoundedCornerShape(16)
+                        ) {
+                            Text(
+                                text = "Start From: ${startFrom.dayOfMonth}/${startFrom.monthValue}",
+                                modifier = Modifier.padding(16.dp),
+                                fontSize = 15.sp
+                            )
+                        }
+                    }
+
+                    CalendarDialog(
+                        state = calendarState,
+                        selection = CalendarSelection.Date { date ->
+                            startFrom = date
+                        },
+                        config = CalendarConfig()
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Reminder Time Button
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(top = 16.dp)
+                    ) {
+                        Button(
+                            onClick = { timeState.show() },
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text(text = "Set Reminder")
+                        }
+
+                        Surface(
+                            modifier = Modifier.padding(top = 16.dp),
+                            color = Color(0xffe1e2ec),
+                            shape = RoundedCornerShape(16)
+                        ) {
+                            Text(
+                                text = "Reminder: ${reminderTime?.hour}:${reminderTime?.minute ?: "Not Set"}",
+                                modifier = Modifier.padding(16.dp),
+                                fontSize = 15.sp
+                            )
+                        }
+                    }
+
+                    ClockDialog(
+                        state = timeState,
+                        selection = ClockSelection.HoursMinutes { hours, minutes ->
+                            reminderTime = LocalTime.of(hours, minutes)
+                        },
+                        config = ClockConfig()
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     val isInputValid = name.isNotBlank() && description.isNotBlank()
                     Button(
                         onClick = {
@@ -165,10 +252,10 @@ fun EditHabit(
                                 startFrom = startFrom,
                                 context = context
                             )
-                            navController.popBackStack() // Navigate back to Home
+                            navController.popBackStack()
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = isInputValid // Disable button if inputs are invalid
+                        enabled = isInputValid
                     ) {
                         Text("Save Changes")
                     }
