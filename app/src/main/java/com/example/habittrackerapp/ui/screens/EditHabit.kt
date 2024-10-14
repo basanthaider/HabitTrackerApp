@@ -2,24 +2,34 @@ package com.example.habittrackerapp.ui.screens
 
 import android.util.Log
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.habittrackerapp.models.Habit
 import com.example.habittrackerapp.repository.HabitViewModel
+import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import com.maxkeppeler.sheets.option.OptionDialog
+import com.maxkeppeler.sheets.option.models.DisplayMode
+import com.maxkeppeler.sheets.option.models.Option
+import com.maxkeppeler.sheets.option.models.OptionConfig
+import com.maxkeppeler.sheets.option.models.OptionSelection
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditHabit(
     navController: NavHostController,
     habitViewModel: HabitViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
-    habitName: String // Pass the habit name as a parameter
+    habitName: String
 ) {
     var habit by remember { mutableStateOf<Habit?>(null) }
     var name by remember { mutableStateOf("") }
@@ -28,21 +38,32 @@ fun EditHabit(
     var reminderTime by remember { mutableStateOf<LocalTime?>(null) }
     var startFrom by remember { mutableStateOf(LocalDate.now()) }
     var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf("") }
+    val optionState = rememberUseCaseState()
+    val context = LocalContext.current
 
     LaunchedEffect(habitName) {
-        habit = habitViewModel.getHabitByName(habitName)
-        if (habit != null) {
-            name = habit!!.name
-            description = habit!!.description
-            repeat = habit!!.repeat
-            reminderTime = habit!!.reminder?.let { LocalTime.of(it.hour, it.minute, it.second, it.nano) }
-            startFrom = if (habit!!.startFrom.isNotEmpty()) {
-                LocalDate.parse(habit!!.startFrom, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-            } else {
-                LocalDate.now()
+        try {
+            habit = habitViewModel.getHabitByName(habitName)
+            habit?.let {
+                name = it.name
+                description = it.description
+                repeat = it.repeat
+                reminderTime = it.reminder?.let { LocalTime.of(it.hour, it.minute, it.second, it.nano) }
+                startFrom = if (it.startFrom.isNotEmpty()) {
+                    LocalDate.parse(it.startFrom, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                } else {
+                    LocalDate.now()
+                }
+            } ?: run {
+                errorMessage = "Habit not found."
             }
+        } catch (e: Exception) {
+            Log.e("EditHabit", "Error fetching habit: ${e.message}")
+            errorMessage = "Error fetching habit."
+        } finally {
+            isLoading = false
         }
-        isLoading = false
     }
 
     if (isLoading) {
@@ -50,114 +71,115 @@ fun EditHabit(
             contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxSize()
         ) {
-            CircularProgressIndicator()
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                CircularProgressIndicator()
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Loading habit...")
+            }
         }
     } else {
-        habit?.let {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start
-            ) {
-                Text(
-                    text = "Edit Habit",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Habit Name") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = repeat.joinToString(", "),
-                    onValueChange = {
-                        repeat = it.split(",").map { day -> day.trim() }.filter { day -> day.isNotEmpty() }
-                    },
-                    label = { Text("Repeat (e.g., Everyday, Weekdays)") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Set Reminder:")
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Switch(
-                        checked = reminderTime != null,
-                        onCheckedChange = { isChecked ->
-                            reminderTime = if (isChecked) LocalTime.now() else null
-                        }
-                    )
-                }
-                if (reminderTime != null) {
-
-                    OutlinedTextField(
-                        value = reminderTime.toString(),
-                        onValueChange = {
-                            reminderTime = try {
-                                LocalTime.parse(it)
-                            } catch (e: Exception) {
-                                reminderTime // Keep previous value on parse failure
-                            }
-                        },
-                        label = { Text("Reminder Time (HH:MM)") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = startFrom.toString(),
-                    onValueChange = {
-                        startFrom = try {
-                            LocalDate.parse(it, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                        } catch (e: Exception) {
-                            startFrom // Keep previous value on parse failure
-                        }
-                    },
-                    label = { Text("Start From (YYYY-MM-DD)") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                // Save Changes Button
-                Button(
-                    onClick = {
-
-                        habitViewModel.updateHabit(
-                            originalName = habitName, // Use the original name to identify the habit
-                            newName = name,
-                            description = description,
-                            repeat = repeat,
-                            reminder = reminderTime,
-                            startFrom = startFrom
-                        )
-                        navController.popBackStack() // Navigate back to Home
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Save Changes")
-                }
-            }
-        } ?: run {
-            // Handle case where habit is null (e.g., show an error message)
+        errorMessage.takeIf { it.isNotBlank() }?.let {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxSize()
             ) {
-                Text("Habit not found.")
+                Text(it, color = MaterialTheme.colorScheme.error)
+            }
+        } ?: run {
+            habit?.let {
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "Edit Habit",
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text("Habit Name") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = description,
+                        onValueChange = { description = it },
+                        label = { Text("Description") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = { optionState.show() },
+                        modifier = Modifier.padding(top = 16.dp)
+                    ) {
+                        Text(text = "Select Repeat Days")
+                    }
+
+                    Surface(
+                        modifier = Modifier.padding(top = 16.dp),
+                        color = Color(0xffe1e2ec),
+                        shape = RoundedCornerShape(16)
+                    ) {
+                        Text(
+                            text = repeat.joinToString(", ") ?: "No days selected",
+                            modifier = Modifier.padding(16.dp),
+                            fontSize = 15.sp
+                        )
+                    }
+
+                    OptionDialog(
+                        state = optionState,
+                        selection = OptionSelection.Multiple(
+                            options = listOf(
+                                Option(titleText = "Saturday"),
+                                Option(titleText = "Sunday"),
+                                Option(titleText = "Monday"),
+                                Option(titleText = "Tuesday"),
+                                Option(titleText = "Wednesday"),
+                                Option(titleText = "Thursday"),
+                                Option(titleText = "Friday"),
+                                Option(titleText = "Everyday"),
+                            ),
+                            onSelectOptions = { _, selectedOptions -> repeat = selectedOptions.map { it.titleText } }
+                        ),
+                        config = OptionConfig(mode = DisplayMode.GRID_VERTICAL)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Save Changes Button
+                    val isInputValid = name.isNotBlank() && description.isNotBlank()
+                    Button(
+                        onClick = {
+                            habitViewModel.updateHabit(
+                                originalName = habitName,
+                                newName = name,
+                                description = description,
+                                repeat = repeat,
+                                reminder = reminderTime,
+                                startFrom = startFrom,
+                                context = context
+                            )
+                            navController.popBackStack() // Navigate back to Home
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = isInputValid // Disable button if inputs are invalid
+                    ) {
+                        Text("Save Changes")
+                    }
+                }
+            } ?: run {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text("Habit not found.")
+                }
             }
         }
     }
