@@ -137,16 +137,18 @@ class HabitViewModel : ViewModel() {
     }
 
     fun updateHabit(
-        originalName: String, // To identify which habit to update
+        originalName: String, // Original habit name to locate the habit
         newName: String,
         description: String,
         repeat: List<String>,
         reminder: LocalTime?,
-        startFrom: LocalDate
+        startFrom: LocalDate,
+        context: Context
     ) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val habitDocId = "$userId-$originalName" // Use originalName to locate the habit
 
+        // Create a map for the updated habit details
         val updatedHabit = hashMapOf(
             "name" to newName,
             "description" to description,
@@ -155,13 +157,43 @@ class HabitViewModel : ViewModel() {
             "startFrom" to startFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         )
 
+        // Check if the habit exists before updating
         db.collection("users").document(userId).collection("habits").document(habitDocId)
-            .update(updatedHabit)
-            .addOnSuccessListener {
-                // Handle success (e.g., show a Toast)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    // Check if the name has changed
+                    if (originalName != newName) {
+                        val newHabitDocId = "$userId-$newName" // Create a new document ID
+
+                        // Create a new document with the updated details
+                        db.collection("users").document(userId).collection("habits").document(newHabitDocId)
+                            .set(updatedHabit)
+                            .addOnSuccessListener {
+                                // Delete the old document after successful creation
+                                db.collection("users").document(userId).collection("habits").document(habitDocId).delete()
+                                Toast.makeText(context, "Habit updated successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(context, "Habit update failed", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        // If the name hasn't changed, simply update the existing document
+                        db.collection("users").document(userId).collection("habits").document(habitDocId)
+                            .update(updatedHabit)
+                            .addOnSuccessListener {
+                                Toast.makeText(context, "Habit updated successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(context, "Habit update failed", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                } else {
+                    Toast.makeText(context, "Habit does not exist", Toast.LENGTH_SHORT).show()
+                }
             }
             .addOnFailureListener {
-                // Handle failure (e.g., show a Toast)
+                Toast.makeText(context, "Error retrieving habit", Toast.LENGTH_SHORT).show()
             }
     }
 
