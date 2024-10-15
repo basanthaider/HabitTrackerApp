@@ -147,56 +147,68 @@ class HabitViewModel : ViewModel() {
         startFrom: LocalDate,
         context: Context
     ) {
+        // Retrieve the current user's UID from Firebase Authentication
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        // Create the document ID using the userId and original habit name
         val habitDocId = "$userId-$originalName" // Use originalName to locate the habit
 
-        // Create a map to hold the updates
-        val updates = hashMapOf<String, Any>()
-
-        // Check if fields have changed and only add changed fields to updates
-        if (originalName != newName) {
-            // If the name has changed, create a new document ID
-            val newHabitDocId = "$userId-$newName"
-
-            updates["name"] = newName
-            // Delete the old habit
-            deleteHabit(userId, originalName, context)
-            // Create a new habit with updated information
-            addHabit(userId, newName, description, repeat, reminder, startFrom, context = context)
-        }
-        if (description.isNotBlank()) {
-            updates["description"] = description
-        }
-        if (repeat.isNotEmpty()) {
-            updates["repeat"] = repeat
-        }
-        if (reminder != null) {
-            updates["reminder"] = reminder.toString()
-        }
-        updates["startFrom"] = startFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-
-        // Check if the habit exists before updating
+        // First, fetch the isCompletedToday status from the existing document
         db.collection("users").document(userId).collection("habits").document(habitDocId)
             .get()
             .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    // If the name hasn't changed, simply update the existing document with changed fields
-                    db.collection("users").document(userId).collection("habits").document(habitDocId)
-                        .update(updates)
-                        .addOnSuccessListener {
-                            Toast.makeText(context, "Habit updated successfully", Toast.LENGTH_SHORT).show()
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(context, "Habit update failed", Toast.LENGTH_SHORT).show()
-                        }
+                if (document.exists()) { // Check if the document exists
+                    // Retrieve the isCompletedToday value, defaulting to false if not present
+                    val isCompletedToday = document.getBoolean("isCompletedToday") ?: false
+
+                    // If the name has been changed, delete the old document and add a new one while preserving isCompletedToday
+                    if (originalName != newName) {
+                        // Create a new document with the new name and preserve isCompletedToday
+                        addHabit(
+                            userId = userId,
+                            name = newName,
+                            description = description,
+                            repeat = repeat,
+                            reminder = reminder,
+                            startFrom = startFrom,
+                            isCompletedToday = isCompletedToday, // Preserve the status
+                            context = context
+                        )
+
+                        // Delete the old document
+                        deleteHabit(userId, originalName, context)
+                    } else {
+                        // If the name hasn't changed, update only the other fields
+                        val updates = hashMapOf<String, Any>(
+                            "description" to description, // Update description
+                            "repeat" to repeat, // Update repeat days
+                            "reminder" to (reminder?.toString() ?: ""), // Update reminder time or set to empty string if null
+                            "startFrom" to startFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) // Update start date with specific format
+                        )
+
+                        // Update the existing document with the new values
+                        db.collection("users").document(userId).collection("habits").document(habitDocId)
+                            .update(updates)
+                            .addOnSuccessListener {
+                                // Show a success toast message upon successful update
+                                Toast.makeText(context, "Habit updated successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener {
+                                // Show a failure toast message if the update fails
+                                Toast.makeText(context, "Habit update failed", Toast.LENGTH_SHORT).show()
+                            }
+                    }
                 } else {
+                    // Show a toast message if the habit does not exist
                     Toast.makeText(context, "Habit does not exist", Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener {
+                // Show a toast message if there is an error retrieving the habit
                 Toast.makeText(context, "Error retrieving habit", Toast.LENGTH_SHORT).show()
             }
     }
+
+
 
 
 
