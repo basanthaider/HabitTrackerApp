@@ -40,11 +40,9 @@ import com.example.habittrackerapp.ui.theme.DarkBlue
 fun SplashScreen(navController: NavHostController) {
     val context = LocalContext.current
 
-    // Simulate a splash screen delay
     LaunchedEffect(Unit) {
-        delay(3000) // 1 second delay for splash effect
+        delay(2000)
 
-        // Retrieve login state from SharedPreferences
         val sharedPreferences = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
         val isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false)
 
@@ -57,13 +55,11 @@ fun SplashScreen(navController: NavHostController) {
                     popUpTo("/splash") { inclusive = true }
                 }
             } else {
-                // If FirebaseAuth has no current user, navigate to LoginScreen
                 navController.navigate("/login") {
                     popUpTo("/splash") { inclusive = true }
                 }
             }
         } else {
-            // If the user did not choose to be remembered, ensure they are logged out
             FirebaseAuth.getInstance().signOut()
 
             // Navigate to LoginScreen
@@ -77,16 +73,16 @@ fun SplashScreen(navController: NavHostController) {
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color(0xFFc5d6f4)) // Light blue background
+            .background(color = Color(0xFFc5d6f4))
     ) {
         // Animate the scale of the image
         val imageScale = remember { Animatable(0f) }
         LaunchedEffect(Unit) {
             imageScale.animateTo(
-                targetValue = 1f, // Animate to full scale
+                targetValue = 1f,
                 animationSpec = tween(
-                    durationMillis = 1000, // Animation duration
-                    easing = LinearEasing // Adjust easing for desired effect
+                    durationMillis = 1000,
+                    easing = LinearEasing
                 )
             )
         }
@@ -94,40 +90,38 @@ fun SplashScreen(navController: NavHostController) {
         // Animate the text opacity
         val textOpacity = remember { Animatable(0f) }
         LaunchedEffect(Unit) {
-            delay(500) // Delay before starting the animation
+            delay(500)
             textOpacity.animateTo(
-                targetValue = 1f, // Animate to full opacity
+                targetValue = 1f,
                 animationSpec = tween(
-                    durationMillis = 500, // Animation duration
-                    easing = LinearOutSlowInEasing // Ease in for smooth appearance
+                    durationMillis = 500,
+                    easing = LinearOutSlowInEasing
                 )
             )
         }
 
-        // Place the text above the image
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxSize()
         ) {
-            // Text at the top center
+
             Text(
                 text = "Welcome to Habity App!",
                 style = MaterialTheme.typography.headlineLarge,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
-                    .alpha(textOpacity.value) // Apply the animated opacity
-                    .padding(bottom = 16.dp) // Add padding between text and image
+                    .alpha(textOpacity.value)
+                    .padding(bottom = 16.dp)
             )
 
-            // Image below the text
             Image(
                 painter = painterResource(id = R.drawable.ic_lifestyle),
                 contentDescription = "Splash Icon",
                 modifier = Modifier
-                    .size(300.dp) // Set the size of the icon
-                    .scale(imageScale.value) // Apply the animated scale
+                    .size(300.dp)
+                    .scale(imageScale.value)
             )
         }
         }
