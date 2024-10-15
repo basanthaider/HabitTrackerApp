@@ -119,7 +119,7 @@ fun NavHostScreen(habitViewModel: HabitViewModel) {
             }
             composable(route = "/editHabit/{habitName}") { backStackEntry ->
                 val habitName = backStackEntry.arguments?.getString("habitName") ?: return@composable
-                bottomBarVisibility = true
+                bottomBarVisibility = false
                 topAppBarVisibility = true
 
                 EditHabit(navController, habitViewModel, habitName)
@@ -219,12 +219,6 @@ fun TopAppBar(navController: NavHostController) {
 }
 
 
-//@Preview(showBackground = true, showSystemUi = true)
-//@Composable
-//fun NavHostScreenPreview() {
-//    // Pass dummy values for preview purposes
-//    NavHostScreen(habitViewModel = HabitViewModel(), userId = "dummyUserId")
-//}
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun TopAppBarPreview() {

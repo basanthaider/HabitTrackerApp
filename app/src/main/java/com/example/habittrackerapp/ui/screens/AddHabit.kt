@@ -117,7 +117,7 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel) {
                     defaultTime = reminder,
                 ))
             Text(
-                text = "Add a New Habit",
+                text = "Add a new habit",
                 fontSize = 24.sp,
             )
             OutlinedTextField(
@@ -134,6 +134,7 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel) {
                     Text(text = "Habit Name")
                 },
                 shape = RoundedCornerShape(16.dp),
+                label = { Text(text = "Habit Name")}
             )
             if (!isHabitNameValid) {
                 Text(
@@ -157,6 +158,7 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel) {
                     Text(text = "Habit Description")
                 },
                 shape = RoundedCornerShape(16.dp),
+                label = { Text(text ="Habit Description")}
             )
             if (!isHabitDescriptionValid) {
                 Text(

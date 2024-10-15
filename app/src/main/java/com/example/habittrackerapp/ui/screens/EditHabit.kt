@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.habittrackerapp.models.Habit
 import com.example.habittrackerapp.repository.HabitViewModel
+import com.example.habittrackerapp.ui.theme.Blue
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
@@ -41,29 +42,28 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditHabit(
-    navController: NavHostController, // Navigation controller to handle screen transitions
-    habitViewModel: HabitViewModel = androidx.lifecycle.viewmodel.compose.viewModel(), // ViewModel to manage habit data
+    navController: NavHostController,
+    habitViewModel: HabitViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     habitName: String // Name of the habit to be edited
 ) {
-    var habit by remember { mutableStateOf<Habit?>(null) } // Holds the current habit being edited
-    var name by remember { mutableStateOf("") } // State variable for habit name input
-    var description by remember { mutableStateOf("") } // State variable for habit description input
-    var repeat by remember { mutableStateOf(listOf<String>()) } // State variable for selected repeat days
-    var reminderTime by remember { mutableStateOf<LocalTime?>(null) } // State variable for reminder time
-    var startFrom by remember { mutableStateOf(LocalDate.now()) } // State variable for start date
-    var isLoading by remember { mutableStateOf(true) } // Loading state to manage loading UI
-    var errorMessage by remember { mutableStateOf("") } // State variable for error messages
-    val optionState = rememberUseCaseState() // State for the repeat days selection dialog
-    val calendarState = rememberUseCaseState() // State for the calendar date selection dialog
-    val timeState = rememberUseCaseState() // State for the time selection dialog
-    val context = LocalContext.current // Get current context
+    var habit by remember { mutableStateOf<Habit?>(null) }
+    var name by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var repeat by remember { mutableStateOf(listOf<String>()) }
+    var reminderTime by remember { mutableStateOf<LocalTime?>(null) }
+    var startFrom by remember { mutableStateOf(LocalDate.now()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf("") }
+    val optionState = rememberUseCaseState()
+    val calendarState = rememberUseCaseState()
+    val timeState = rememberUseCaseState()
+    val context = LocalContext.current
 
-    // Load habit data when the screen is displayed
     LaunchedEffect(habitName) {
         try {
-            habit = habitViewModel.getHabitByName(habitName) // Fetch habit using the habit name
+            habit = habitViewModel.getHabitByName(habitName)
             habit?.let {
-                // If the habit is found, populate the fields with its data
+
                 name = it.name
                 description = it.description
                 repeat = it.repeat
@@ -75,53 +75,53 @@ fun EditHabit(
                         DateTimeFormatter.ofPattern("yyyy-MM-dd")
                     ) // Parse the start date
                 } else {
-                    LocalDate.now() // Default to today's date if not provided
+                    LocalDate.now()
                 }
             } ?: run {
-                // If the habit is not found, set an error message
+
                 errorMessage = "Habit not found."
             }
         } catch (e: Exception) {
             // Log any errors encountered during data fetching
             Log.e("EditHabit", "Error fetching habit: ${e.message}")
-            errorMessage = "Error fetching habit." // Update error message
+            errorMessage = "Error fetching habit."
         } finally {
-            // Set loading to false once data fetching is complete
+
             isLoading = false
         }
     }
 
-    // UI displayed while loading the habit data
+
     if (isLoading) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxSize()
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                CircularProgressIndicator() // Show a loading spinner
-                Spacer(modifier = Modifier.height(8.dp)) // Space between elements
-                Text("Loading habit...") // Loading text
+                CircularProgressIndicator()
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Loading habit...")
             }
         }
     } else {
-        // If there's an error message, display it
+
         errorMessage.takeIf { it.isNotBlank() }?.let {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxSize()
             ) {
-                Text(it, color = MaterialTheme.colorScheme.error) // Show error in red color
+                Text(it, color = MaterialTheme.colorScheme.error)
             }
         } ?: run {
-            // If a habit is found, display the editing interface
+
             habit?.let {
 
                 Box(modifier = Modifier.fillMaxSize()) {
-                    // Fixed TopAppBar
-                    TopAppBar(
-                        title = {
-                            Text("Edit Habit") // Title of the toolbar
-                        }
+
+                    Text(
+                        text = "Edit your habit",
+                        fontSize = 24.sp,
+                        modifier = Modifier.padding(16.dp)
                     )
 
                     Column(
@@ -129,56 +129,57 @@ fun EditHabit(
                             .fillMaxSize()
                             .padding(16.dp)
                             .padding(top = 56.dp)
-                            .verticalScroll(rememberScrollState()), // Enable vertical scrolling
+                            .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.Start
                     ) {
 
 
                         OutlinedTextField(
-                            value = name, // Current habit name
-                            onValueChange = { name = it }, // Update name on change
-                            label = { Text("Habit Name") }, // Label for the input field
-                            modifier = Modifier.fillMaxWidth() // Full width of the screen
+                            value = name,
+                            onValueChange = { name = it },
+                            label = { Text("Habit Name") },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp)
                         )
-                        Spacer(modifier = Modifier.height(8.dp)) // Space between fields
+                        Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(
-                            value = description, // Current habit description
-                            onValueChange = { description = it }, // Update description on change
-                            label = { Text("Description") }, // Label for the input field
-                            modifier = Modifier.fillMaxWidth() // Full width of the screen
+                            value = description,
+                            onValueChange = { description = it },
+                            label = { Text(" Habit Description") },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp)
                         )
-                        Spacer(modifier = Modifier.height(16.dp)) // Space between fields
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                        // Button to select repeat days
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(top = 16.dp)
                         ) {
                             Button(
-                                onClick = { optionState.show() }, // Show repeat days dialog
-                                modifier = Modifier.padding(end = 8.dp)
+                                onClick = { optionState.show() },
+                                modifier = Modifier.padding(end = 8.dp),
+                                colors = ButtonDefaults.buttonColors(Blue),
+                                shape = RoundedCornerShape(24)
                             ) {
-                                Text(text = "Select Repeat Days") // Button text
+                                Text(text = "Select Repeat Days")
                             }
 
                             Spacer(modifier = Modifier.weight(1f))
 
-                            // Display selected repeat days
+
                             Surface(
-                                color = MaterialTheme.colorScheme.surface, // Background color
-                                shape = RoundedCornerShape(16) // Rounded corners
+                                color = MaterialTheme.colorScheme.surface,
+                                shape = RoundedCornerShape(16)
                             ) {
                                 Text(
-                                    text = repeat.joinToString(", ")
-                                        ?: "No days selected", // Show selected days or default text
+                                    text = repeat.joinToString(", "),
                                     modifier = Modifier.padding(16.dp),
                                     fontSize = 15.sp // Font size for display
                                 )
                             }
                         }
 
-                        // Option dialog for repeat days selection
                         OptionDialog(
                             state = optionState,
                             selection = OptionSelection.Multiple(
@@ -194,100 +195,102 @@ fun EditHabit(
                                 ),
                                 onSelectOptions = { _, selectedOptions ->
                                     repeat = selectedOptions.map { it.titleText }
-                                } // Update repeat days
+                                }
                             ),
-                            config = OptionConfig(mode = DisplayMode.GRID_VERTICAL) // Display options in a grid
+                            config = OptionConfig(mode = DisplayMode.GRID_VERTICAL)
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp)) // Space between fields
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                        // Button to select start date
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(top = 16.dp)
                         ) {
                             Button(
-                                onClick = { calendarState.show() }, // Show calendar dialog
-                                modifier = Modifier.padding(end = 8.dp)
+                                onClick = { calendarState.show() },
+                                modifier = Modifier.padding(end = 8.dp),
+                                colors = ButtonDefaults.buttonColors(Blue),
+                                shape = RoundedCornerShape(24)
                             ) {
-                                Text(text = "Start From") // Button text
+                                Text(text = "Start From")
                             }
 
                             Spacer(modifier = Modifier.weight(1f))
 
-                            // Display selected start date
                             Surface(
                                 modifier = Modifier.padding(top = 16.dp),
-                                color = MaterialTheme.colorScheme.surface, // Background color
-                                shape = RoundedCornerShape(16) // Rounded corners
+                                color = MaterialTheme.colorScheme.surface,
+                                shape = RoundedCornerShape(16)
                             ) {
                                 Text(
-                                    text = "Start From: ${startFrom.dayOfMonth}/${startFrom.monthValue}", // Show formatted start date
+                                    text = "Start From: ${startFrom.dayOfMonth}/${startFrom.monthValue}",
                                     modifier = Modifier.padding(16.dp),
-                                    fontSize = 15.sp // Font size for display
+                                    fontSize = 15.sp
                                 )
                             }
                         }
 
-                        // Calendar dialog for selecting start date
+
                         CalendarDialog(
                             state = calendarState,
                             selection = CalendarSelection.Date { date ->
-                                startFrom = date // Update start date on selection
+                                startFrom = date
                             },
-                            config = CalendarConfig() // Configuration for calendar dialog
+                            config = CalendarConfig()
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp)) // Space between fields
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                        // Button to set reminder time
+
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(top = 16.dp)
                         ) {
                             Button(
-                                onClick = { timeState.show() }, // Show clock dialog
-                                modifier = Modifier.padding(end = 8.dp)
+                                onClick = { timeState.show() },
+                                modifier = Modifier.padding(end = 8.dp),
+                                colors = ButtonDefaults.buttonColors(Blue),
+                                shape = RoundedCornerShape(24)
                             ) {
                                 Text(text = "Set Reminder") // Button text
                             }
 
                             Spacer(modifier = Modifier.weight(1f))
 
-                            // Display selected reminder time
+
                             Surface(
                                 modifier = Modifier.padding(top = 16.dp),
-                                color = MaterialTheme.colorScheme.surface, // Background color
-                                shape = RoundedCornerShape(16) // Rounded corners
+                                color = MaterialTheme.colorScheme.surface,
+                                shape = RoundedCornerShape(16)
                             ) {
                                 Text(
-                                    text = "Reminder: ${reminderTime?.hour}:${reminderTime?.minute ?: "Not Set"}", // Show reminder time or default text
+                                    text = "Reminder: ${reminderTime?.hour}:${reminderTime?.minute ?: "Not Set"}",
                                     modifier = Modifier.padding(16.dp),
-                                    fontSize = 15.sp // Font size for display
+                                    fontSize = 15.sp
                                 )
                             }
                         }
 
-                        // Clock dialog for selecting reminder time
+
                         ClockDialog(
                             state = timeState,
                             selection = ClockSelection.HoursMinutes { hours, minutes ->
                                 reminderTime = LocalTime.of(
                                     hours,
                                     minutes
-                                ) // Update reminder time on selection
+                                )
                             },
-                            config = ClockConfig() // Configuration for clock dialog
+                            config = ClockConfig()
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp)) // Space between fields
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                        // Button to save the habit changes
+
                         val isInputValid =
-                            name.isNotBlank() && description.isNotBlank() // Check if inputs are valid
+                            name.isNotBlank() && description.isNotBlank()
                         Button(
                             onClick = {
-                                // Update habit in ViewModel and navigate back
+
                                 habitViewModel.updateHabit(
                                     originalName = habitName,
                                     newName = name,
@@ -297,21 +300,17 @@ fun EditHabit(
                                     startFrom = startFrom,
                                     context = context
                                 )
-                                navController.popBackStack() // Navigate back after saving
+                                navController.popBackStack()
                             },
-                            modifier = Modifier.fillMaxWidth(), // Full width of the button
-                            enabled = isInputValid // Enable button only if inputs are valid
+                            modifier = Modifier.fillMaxWidth()
+                                .height(55.dp)
+                                .padding(top = 16.dp),
+                            enabled = isInputValid,
+                            colors = ButtonDefaults.buttonColors(Blue),
+                            shape = RoundedCornerShape(24)
                         ) {
-                            Text("Save Changes") // Button text
+                            Text("Save Changes")
                         }
-                    }
-                } ?: run {
-                    // If habit is not found, display a message
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Text("Habit not found.") // Display message
                     }
                 }
             }

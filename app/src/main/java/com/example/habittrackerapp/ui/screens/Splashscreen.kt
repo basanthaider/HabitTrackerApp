@@ -41,13 +41,13 @@ fun SplashScreen(navController: NavHostController) {
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        delay(2000)
+        delay(3000)
 
         val sharedPreferences = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
         val isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false)
 
         if (isLoggedIn) {
-            // If the user chose to be remembered and is logged in, navigate to HomeScreen
+
             val currentUser = FirebaseAuth.getInstance().currentUser
             if (currentUser != null) {
                 UserSession.userId = currentUser.uid
@@ -75,7 +75,7 @@ fun SplashScreen(navController: NavHostController) {
             .fillMaxSize()
             .background(color = Color(0xFFc5d6f4))
     ) {
-        // Animate the scale of the image
+
         val imageScale = remember { Animatable(0f) }
         LaunchedEffect(Unit) {
             imageScale.animateTo(
@@ -87,8 +87,9 @@ fun SplashScreen(navController: NavHostController) {
             )
         }
 
-        // Animate the text opacity
+
         val textOpacity = remember { Animatable(0f) }
+
         LaunchedEffect(Unit) {
             delay(500)
             textOpacity.animateTo(
