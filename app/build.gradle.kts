@@ -86,5 +86,6 @@ dependencies {
 
     // Accompanist Permissions for handling runtime permissions in Compose
     implementation ("com.google.accompanist:accompanist-permissions:0.30.1")
-   
+
+
 }

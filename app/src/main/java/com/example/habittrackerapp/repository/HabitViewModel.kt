@@ -1,8 +1,13 @@
 package com.example.habittrackerapp.repository
 
+import NotificationWorker
 import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
 import com.example.habittrackerapp.models.Habit
 import com.example.habittrackerapp.models.Reminder
 import com.google.firebase.auth.FirebaseAuth
@@ -12,25 +17,27 @@ import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.util.concurrent.TimeUnit
 
 class HabitViewModel : ViewModel() {
 
     val db = Firebase.firestore
 
     fun addHabit(
-        userId: String,
-        name: String,
-        description: String,
-        repeat: List<String>,
-        reminder: LocalTime?,
-        startFrom: LocalDate,
-        currentStreak: Int = 0,
-        longestStreak: Int = 0,
-        totalPerfectDays: Int = 0,
-        totalTimesCompleted: Int = 0,
-        isReminder: Boolean = false,
-        isCompletedToday: Boolean = false,
-        context: Context,
+    userId: String,
+    name: String,
+    description: String,
+    repeat: List<String>,
+    reminder: LocalTime? = null,
+    startFrom: LocalDate,
+    currentStreak: Int = 0,
+    longestStreak: Int = 0,
+    totalPerfectDays: Int = 0,
+    totalTimesCompleted: Int = 0,
+    isReminder: Boolean = false,
+    isCompletedToday: Boolean = false,
+    context: Context,
     ) {
         val habitDocId = "$userId-$name"
 
@@ -52,12 +59,41 @@ class HabitViewModel : ViewModel() {
         db.collection("users").document(userId).collection("habits").document(habitDocId).set(habit)
             .addOnSuccessListener {
                 Toast.makeText(context, "Habit added successfully", Toast.LENGTH_SHORT).show()
+                // Schedule notification if reminder is set
+                if (isReminder && reminder != null) {
+                    // Calculate the delay until the reminder time
+                    val now = LocalTime.now()
+                    val delayInMinutes = if (reminder.isAfter(now)) {
+                        // Calculate minutes until reminder
+                        ChronoUnit.MINUTES.between(now, reminder)
+                    } else {
+                        // Schedule for the next day if the reminder time has already passed
+                        ChronoUnit.MINUTES.between(now, reminder.plusHours(24))
+                    }
+
+                    // Schedule the notification using WorkManager
+                    scheduleNotificationWithWorkManager(context, name, delayInMinutes)
+                }
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Something Went Wrong", Toast.LENGTH_SHORT).show()
             }
     }
+    // Method to schedule the notification with WorkManager
+    private fun scheduleNotificationWithWorkManager(context: Context, habitName: String, delayInMinutes: Long) {
+        val data = Data.Builder()
+            .putString("habit_name", habitName)
+            .build()
 
+        // Create a work request for scheduling the notification
+        val notificationWork = OneTimeWorkRequestBuilder<NotificationWorker>()
+            .setInitialDelay(delayInMinutes, TimeUnit.MINUTES)
+            .setInputData(data)
+            .build()
+
+        // Use WorkManager to enqueue the work
+        WorkManager.getInstance(context).enqueue(notificationWork)
+    }
     suspend fun storeHabitsInMap(userId: String, date: LocalDate): List<Map<String, Boolean>> {
         val habits = mutableListOf<Map<String, Boolean>>()
 

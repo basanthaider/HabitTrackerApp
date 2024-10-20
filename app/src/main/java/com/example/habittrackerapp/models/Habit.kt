@@ -18,4 +18,10 @@ data class Reminder(val hour: Int,
                     val minute: Int,
                     val second: Int,
                     val nano: Int
-)
+){
+    fun toLocalTime(): LocalTime {
+        return LocalTime.of(hour, minute, second, nano)
+    }
+}
+
+

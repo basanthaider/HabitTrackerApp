@@ -142,19 +142,6 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    @SuppressLint("MissingPermission")
-    private fun sendNotification(c: Context) {
-        val builder = NotificationCompat.Builder(c, "1")
-            .setSmallIcon(R.drawable.ic_lifestyle)
-            .setContentTitle("Reminder")
-            .setContentText("Don't forget to track your habits!")
-            .setAutoCancel(true)
-
-        // Show the notification
-        val notificationManager = NotificationManagerCompat.from(c)
-        notificationManager.notify(2, builder.build())
-    }
-
     private fun createNotificationChannel() {
 
             val importance = NotificationManager.IMPORTANCE_DEFAULT

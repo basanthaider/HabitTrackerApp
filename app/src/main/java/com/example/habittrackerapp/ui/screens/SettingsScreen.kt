@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -50,7 +50,8 @@ fun SettingsScreen(navController: NavHostController) {
         auth.signOut()
 
         // Clear login state from SharedPreferences
-        val sharedPreferences = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+        val sharedPreferences =
+            context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
             putBoolean("is_logged_in", false)
             apply()
@@ -65,7 +66,6 @@ fun SettingsScreen(navController: NavHostController) {
             launchSingleTop = true
         }
     }
-
     // Existing SettingsScreen UI
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
