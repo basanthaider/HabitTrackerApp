@@ -4,39 +4,52 @@ import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.habittrackerapp.R
-import androidx.compose.runtime.setValue
-
-import com.google.firebase.auth.FirebaseAuth
-import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import com.example.habittrackerapp.utils.UserSession
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
@@ -45,7 +58,7 @@ fun LoginScreen(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
-    val context= LocalContext.current
+    val context = LocalContext.current
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -56,9 +69,11 @@ fun LoginScreen(navController: NavHostController) {
             contentAlignment = Alignment.TopCenter
         ) {
             // Curved background shape
-            CurvedBackground(modifier = Modifier
-                .fillMaxWidth()
-                .height(350.dp))
+            CurvedBackground(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(350.dp)
+            )
 
             // Image that fills the entire white area
             Image(
@@ -157,7 +172,8 @@ fun LoginScreen(navController: NavHostController) {
                     visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Password, // Use password keyboard type
-                        imeAction = ImeAction.Next),
+                        imeAction = ImeAction.Next
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)
@@ -193,7 +209,8 @@ fun LoginScreen(navController: NavHostController) {
                     Text(
                         text = "Forgot Password?",
                         color = Color.White,
-                        modifier = Modifier.align(Alignment.CenterVertically)
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
                             .clickable {
                                 navController.navigate("/forget")
 
@@ -205,9 +222,19 @@ fun LoginScreen(navController: NavHostController) {
                 Button(
                     onClick = {
                         if (email.isBlank() || password.isBlank()) {
-                            Toast.makeText(context, "Please enter both email and password", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "Please enter both email and password",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } else {
-                            loginUser(email, password, navController, context, rememberMeChecked) // Pass rememberMeChecked
+                            loginUser(
+                                email,
+                                password,
+                                navController,
+                                context,
+                                rememberMeChecked
+                            ) // Pass rememberMeChecked
                         }
                     },
                     modifier = Modifier
@@ -234,7 +261,8 @@ fun LoginScreen(navController: NavHostController) {
                         text = " Sign up",
                         color = Color.Yellow,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(start = 4.dp)
+                        modifier = Modifier
+                            .padding(start = 4.dp)
                             .clickable {
                                 navController.navigate("/register")
                                 // Handle the click event here
@@ -268,14 +296,18 @@ private fun loginUser(
                 Log.d("LoginUser", "Login successful : ${task.result.user?.uid}")
                 val currentUser = FirebaseAuth.getInstance().currentUser
                 UserSession.userId = currentUser?.uid ?: ""
-                navController.navigate("/home" ){
-                popUpTo("/login") { inclusive = true }
+                navController.navigate("/home") {
+                    popUpTo("/login") { inclusive = true }
                 }
             } else {
                 // Handle the error (e.g., show a Snackbar with an error message)
                 val errorMessage = task.exception?.message ?: "Login failed"
                 Log.e("LoginUser", errorMessage) // Log the error
-                Toast.makeText(context, "Incorrect email or password, please try again", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Incorrect email or password, please try again",
+                    Toast.LENGTH_SHORT
+                ).show()
 
             }
         }

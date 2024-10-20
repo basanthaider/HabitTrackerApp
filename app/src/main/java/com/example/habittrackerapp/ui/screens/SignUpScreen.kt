@@ -2,10 +2,27 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -113,7 +130,8 @@ fun RegisterScreen(navController: NavHostController) {
                     placeholder = { Text(text = "Email address") },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Email, // Use password keyboard type
-                        imeAction = ImeAction.Next),
+                        imeAction = ImeAction.Next
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)
@@ -153,7 +171,8 @@ fun RegisterScreen(navController: NavHostController) {
                     visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Password, // Use password keyboard type
-                        imeAction = ImeAction.Next),
+                        imeAction = ImeAction.Next
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)
@@ -179,7 +198,9 @@ fun RegisterScreen(navController: NavHostController) {
                         )
                     },
                     trailingIcon = {
-                        IconButton(onClick = { isConfirmPasswordVisible = !isConfirmPasswordVisible }) {
+                        IconButton(onClick = {
+                            isConfirmPasswordVisible = !isConfirmPasswordVisible
+                        }) {
                             Icon(
                                 painter = painterResource(
                                     id = if (isConfirmPasswordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
@@ -193,7 +214,8 @@ fun RegisterScreen(navController: NavHostController) {
                     visualTransformation = if (isConfirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Password, // Use password keyboard type
-                        imeAction = ImeAction.Next),
+                        imeAction = ImeAction.Next
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp)
@@ -222,17 +244,27 @@ fun RegisterScreen(navController: NavHostController) {
                 Button(
                     onClick = {
                         if (email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
-                            Toast.makeText(context, "Please fill in all the fields", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "Please fill in all the fields",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } else if (password == confirmPassword) { // Check if passwords match
                             if (!isEmailValid(email)) { // Check if email is valid
-                                Toast.makeText(context, "Invalid email format", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Invalid email format", Toast.LENGTH_SHORT)
+                                    .show()
                             } else if (!isPasswordValid(password)) { // Check if password meets criteria
-                                Toast.makeText(context, "Password must be at least 7 characters and contain a special character", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Password must be at least 7 characters and contain a special character",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             } else {
                                 registerUser(email, password, navController, context)
                             }
                         } else {
-                            Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT)
+                                .show()
                         }
                     },
                     modifier = Modifier
@@ -258,7 +290,8 @@ fun RegisterScreen(navController: NavHostController) {
                         text = " Login",
                         color = Color.Yellow,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(start = 4.dp)
+                        modifier = Modifier
+                            .padding(start = 4.dp)
                             .clickable {
                                 navController.navigate("/login")
                             }
@@ -272,13 +305,18 @@ fun RegisterScreen(navController: NavHostController) {
 // Place the registerUser function outside the composable
 
 
-private fun registerUser(email: String, password: String, navController: NavHostController,context: Context) {
+private fun registerUser(
+    email: String,
+    password: String,
+    navController: NavHostController,
+    context: Context
+) {
     val auth = FirebaseAuth.getInstance()
 
     auth.createUserWithEmailAndPassword(email, password)
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Toast.makeText( context, "Registration successful", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Registration successful", Toast.LENGTH_SHORT).show()
                 navController.navigate("/login") {
                     popUpTo("register") { inclusive = true } // Remove Register from back stack
                 }
@@ -291,9 +329,11 @@ private fun registerUser(email: String, password: String, navController: NavHost
             }
         }
 }
+
 private fun isEmailValid(email: String): Boolean {
     return email.contains("@") && email.contains(".")
 }
+
 private fun isPasswordValid(password: String): Boolean {
     val specialCharPattern = Regex("[!@#\$%^&*(),.?\":{}|<>]") // Special character regex pattern
     return password.length >= 7 && specialCharPattern.containsMatchIn(password)

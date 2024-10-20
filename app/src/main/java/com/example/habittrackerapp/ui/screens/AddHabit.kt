@@ -54,7 +54,11 @@ import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel) {
+fun AddHabit(
+    navController: NavHostController,
+    habitViewModel: HabitViewModel,
+    onRequestNotificationPermission: () -> Unit
+) {
     var habitName by remember { mutableStateOf("") }
     var isHabitNameValid by remember { mutableStateOf(true) }
     var habitDescription by remember { mutableStateOf("") }
@@ -77,6 +81,8 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel) {
     ) {
         Log.d("trace", "UserIDDDDDDDDD: $userId")
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
+
+
             OptionDialog(
                 state = optionState,
                 selection = OptionSelection.Multiple(
@@ -115,7 +121,8 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel) {
                 },
                 config = ClockConfig(
                     defaultTime = reminder,
-                ))
+                )
+            )
             Text(
                 text = "Add a new habit",
                 fontSize = 24.sp,
@@ -134,7 +141,7 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel) {
                     Text(text = "Habit Name")
                 },
                 shape = RoundedCornerShape(16.dp),
-                label = { Text(text = "Habit Name")}
+                label = { Text(text = "Habit Name") }
             )
             if (!isHabitNameValid) {
                 Text(
@@ -158,7 +165,7 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel) {
                     Text(text = "Habit Description")
                 },
                 shape = RoundedCornerShape(16.dp),
-                label = { Text(text ="Habit Description")}
+                label = { Text(text = "Habit Description") }
             )
             if (!isHabitDescriptionValid) {
                 Text(
@@ -206,12 +213,15 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel) {
                     modifier = Modifier.clickable {
                         timeState.show()
                         isReminder = true
+
                     }
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Switch(checked = isReminder, onCheckedChange = {
-                    if (!isReminder){
+                    if (!isReminder) {
                         timeState.show()
+                        onRequestNotificationPermission()
+
 
                     }
 
@@ -297,7 +307,7 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel) {
                             context = context,
                             isReminder = isReminder,
                         )
-                        navController.navigate("/home" ){
+                        navController.navigate("/home") {
                             popUpTo("/home") { inclusive = true }
                         }
                     } else {
@@ -317,4 +327,3 @@ fun AddHabit(navController: NavHostController, habitViewModel: HabitViewModel) {
         }
     }
 }
-

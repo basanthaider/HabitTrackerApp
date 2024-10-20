@@ -1,8 +1,12 @@
 package com.example.habittrackerapp.repository
 
+import NotificationWorker
 import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.habittrackerapp.models.Habit
 import com.example.habittrackerapp.models.Reminder
 import com.google.firebase.auth.FirebaseAuth
@@ -12,6 +16,8 @@ import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.util.concurrent.TimeUnit
 
 class HabitViewModel : ViewModel() {
 
@@ -22,7 +28,7 @@ class HabitViewModel : ViewModel() {
         name: String,
         description: String,
         repeat: List<String>,
-        reminder: LocalTime?,
+        reminder: LocalTime? = null,
         startFrom: LocalDate,
         currentStreak: Int = 0,
         longestStreak: Int = 0,
@@ -52,10 +58,45 @@ class HabitViewModel : ViewModel() {
         db.collection("users").document(userId).collection("habits").document(habitDocId).set(habit)
             .addOnSuccessListener {
                 Toast.makeText(context, "Habit added successfully", Toast.LENGTH_SHORT).show()
+                // Schedule notification if reminder is set
+                if (isReminder && reminder != null) {
+                    // Calculate the delay until the reminder time
+                    val now = LocalTime.now()
+                    val delayInMinutes = if (reminder.isAfter(now)) {
+                        // Calculate minutes until reminder
+                        ChronoUnit.MINUTES.between(now, reminder)
+                    } else {
+                        // Schedule for the next day if the reminder time has already passed
+                        ChronoUnit.MINUTES.between(now, reminder.plusHours(24))
+                    }
+
+                    // Schedule the notification using WorkManager
+                    scheduleNotificationWithWorkManager(context, name, delayInMinutes)
+                }
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Something Went Wrong", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    // Method to schedule the notification with WorkManager
+    private fun scheduleNotificationWithWorkManager(
+        context: Context,
+        habitName: String,
+        delayInMinutes: Long
+    ) {
+        val data = Data.Builder()
+            .putString("habit_name", habitName)
+            .build()
+
+        // Create a work request for scheduling the notification
+        val notificationWork = OneTimeWorkRequestBuilder<NotificationWorker>()
+            .setInitialDelay(delayInMinutes, TimeUnit.MINUTES)
+            .setInputData(data)
+            .build()
+
+        // Use WorkManager to enqueue the work
+        WorkManager.getInstance(context).enqueue(notificationWork)
     }
 
     suspend fun storeHabitsInMap(userId: String, date: LocalDate): List<Map<String, Boolean>> {
@@ -69,7 +110,8 @@ class HabitViewModel : ViewModel() {
 
             habitsSnapshot.documents.forEach { document ->
                 val startFromStr = document.getString("startFrom") ?: return@forEach
-                val startFrom = LocalDate.parse(startFromStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                val startFrom =
+                    LocalDate.parse(startFromStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 val repeat = document.get("repeat")
 
                         as? List<String> ?: emptyList()
@@ -80,7 +122,8 @@ class HabitViewModel : ViewModel() {
                     repeat.contains("Everyday") && startFrom <= date -> {
                         habits.add(
                             mapOf(
-                                document.getString("name")!! to (document.getBoolean("isCompletedToday") ?: false)
+                                document.getString("name")!! to (document.getBoolean("isCompletedToday")
+                                    ?: false)
                             )
                         )
                     }
@@ -88,7 +131,8 @@ class HabitViewModel : ViewModel() {
                     repeat.contains(selectedDayOfWeek) && startFrom <= date -> {
                         habits.add(
                             mapOf(
-                                document.getString("name")!! to (document.getBoolean("isCompletedToday") ?: false)
+                                document.getString("name")!! to (document.getBoolean("isCompletedToday")
+                                    ?: false)
                             )
                         )
                     }
@@ -181,20 +225,27 @@ class HabitViewModel : ViewModel() {
                         val updates = hashMapOf<String, Any>(
                             "description" to description, // Update description
                             "repeat" to repeat, // Update repeat days
-                            "reminder" to (reminder?.toString() ?: ""), // Update reminder time or set to empty string if null
+                            "reminder" to (reminder?.toString()
+                                ?: ""), // Update reminder time or set to empty string if null
                             "startFrom" to startFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) // Update start date with specific format
                         )
 
                         // Update the existing document with the new values
-                        db.collection("users").document(userId).collection("habits").document(habitDocId)
+                        db.collection("users").document(userId).collection("habits")
+                            .document(habitDocId)
                             .update(updates)
                             .addOnSuccessListener {
                                 // Show a success toast message upon successful update
-                                Toast.makeText(context, "Habit updated successfully", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Habit updated successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                             .addOnFailureListener {
                                 // Show a failure toast message if the update fails
-                                Toast.makeText(context, "Habit update failed", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Habit update failed", Toast.LENGTH_SHORT)
+                                    .show()
                             }
                     }
                 } else {
@@ -207,10 +258,6 @@ class HabitViewModel : ViewModel() {
                 Toast.makeText(context, "Error retrieving habit", Toast.LENGTH_SHORT).show()
             }
     }
-
-
-
-
 
 
     fun deleteHabit(userId: String, habitName: String, context: Context) {
@@ -239,4 +286,6 @@ class HabitViewModel : ViewModel() {
                 Toast.makeText(context, "Something Went Wrong", Toast.LENGTH_SHORT).show()
             }
     }
+
+
 }

@@ -41,7 +41,7 @@ import com.example.habittrackerapp.utils.NavItem
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun NavHostScreen(habitViewModel: HabitViewModel) {
+fun NavHostScreen(habitViewModel: HabitViewModel, onRequestNotificationPermission: () -> Unit) {
 
     val auth = FirebaseAuth.getInstance()
     var currentUser by remember { mutableStateOf(auth.currentUser) }
@@ -73,9 +73,7 @@ fun NavHostScreen(habitViewModel: HabitViewModel) {
             }
         }) {
         NavHost(
-            //لما نخلص خالص هنحط السطرين دول متمسحهومش
-            // navController = navController,
-            // startDestination = if (currentUser != null) "home" else "login"
+
             navController = navController,
             startDestination = "/Splash",
             modifier = Modifier.padding(it)
@@ -104,21 +102,26 @@ fun NavHostScreen(habitViewModel: HabitViewModel) {
                 RegisterScreen(navController)
             }
 
-            composable(route = "/home") { // Remove {userId} from route
+            composable(route = "/home") {
                 bottomBarVisibility = true
                 topAppBarVisibility = true
                 HomeScreen(
                     navController,
                     habitViewModel = HabitViewModel()
-                ) // No need to pass userId
+                )
             }
-            composable(route = "/addHabit") { // Remove {userId} from route
+            composable(route = "/addHabit") {
                 bottomBarVisibility = false
                 topAppBarVisibility = true
-                AddHabit(navController, habitViewModel = habitViewModel) // No need to pass userId
+                AddHabit(
+                    navController,
+                    habitViewModel = habitViewModel,
+                    onRequestNotificationPermission
+                )
             }
             composable(route = "/editHabit/{habitName}") { backStackEntry ->
-                val habitName = backStackEntry.arguments?.getString("habitName") ?: return@composable
+                val habitName =
+                    backStackEntry.arguments?.getString("habitName") ?: return@composable
                 bottomBarVisibility = false
                 topAppBarVisibility = true
 
