@@ -1,6 +1,5 @@
 package com.example.habittrackerapp
 
-import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -19,8 +18,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.res.painterResource
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.example.habittrackerapp.repository.HabitViewModel
 import com.example.habittrackerapp.ui.screens.NavHostScreen
@@ -63,7 +60,11 @@ class MainActivity : ComponentActivity() {
                     showPermissionDeniedDialog.value = true
                 } else {
                     // Show a toast message if permission was denied previously
-                    Toast.makeText(this, "You need to allow notifications to activate reminders!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this,
+                        "You need to allow notifications to activate reminders!",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
@@ -86,10 +87,15 @@ class MainActivity : ComponentActivity() {
                                 notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
                             } else {
                                 // Set the flag that permission was denied
-                                getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putBoolean(KEY_PERMISSION_DENIED_ONCE, true).apply()
+                                getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit()
+                                    .putBoolean(KEY_PERMISSION_DENIED_ONCE, true).apply()
                                 showPermissionDeniedDialog.value = false
                                 // Show the toast message on denial
-                                Toast.makeText(this, "You need to allow notifications to activate reminders!", Toast.LENGTH_LONG).show()
+                                Toast.makeText(
+                                    this,
+                                    "You need to allow notifications to activate reminders!",
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }
                         }
                     )
@@ -144,13 +150,13 @@ class MainActivity : ComponentActivity() {
 
     private fun createNotificationChannel() {
 
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel("1", "Reminder Channel", importance).apply {
-                description = "Shows reminder notifications."
-            }
-
-            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            manager.createNotificationChannel(channel)
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val channel = NotificationChannel("1", "Reminder Channel", importance).apply {
+            description = "Shows reminder notifications."
         }
+
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.createNotificationChannel(channel)
     }
+}
 

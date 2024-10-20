@@ -113,10 +113,15 @@ fun NavHostScreen(habitViewModel: HabitViewModel, onRequestNotificationPermissio
             composable(route = "/addHabit") {
                 bottomBarVisibility = false
                 topAppBarVisibility = true
-                AddHabit(navController, habitViewModel = habitViewModel,onRequestNotificationPermission)
+                AddHabit(
+                    navController,
+                    habitViewModel = habitViewModel,
+                    onRequestNotificationPermission
+                )
             }
             composable(route = "/editHabit/{habitName}") { backStackEntry ->
-                val habitName = backStackEntry.arguments?.getString("habitName") ?: return@composable
+                val habitName =
+                    backStackEntry.arguments?.getString("habitName") ?: return@composable
                 bottomBarVisibility = false
                 topAppBarVisibility = true
 

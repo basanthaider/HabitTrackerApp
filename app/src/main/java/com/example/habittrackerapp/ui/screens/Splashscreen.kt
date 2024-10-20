@@ -23,18 +23,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.habittrackerapp.R
+import com.example.habittrackerapp.utils.UserSession
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import com.example.habittrackerapp.utils.UserSession
-import com.example.habittrackerapp.R
-import com.example.habittrackerapp.ui.theme.Blue
-import com.example.habittrackerapp.ui.theme.DarkBlue
 
 @Composable
 fun SplashScreen(navController: NavHostController) {
@@ -43,7 +40,8 @@ fun SplashScreen(navController: NavHostController) {
     LaunchedEffect(Unit) {
         delay(3000)
 
-        val sharedPreferences = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+        val sharedPreferences =
+            context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
         val isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false)
 
         if (isLoggedIn) {
@@ -125,5 +123,5 @@ fun SplashScreen(navController: NavHostController) {
                     .scale(imageScale.value)
             )
         }
-        }
     }
+}

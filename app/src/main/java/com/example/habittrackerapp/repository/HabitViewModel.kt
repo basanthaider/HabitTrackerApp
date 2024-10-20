@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.WorkerParameters
 import com.example.habittrackerapp.models.Habit
 import com.example.habittrackerapp.models.Reminder
 import com.google.firebase.auth.FirebaseAuth
@@ -25,19 +24,19 @@ class HabitViewModel : ViewModel() {
     val db = Firebase.firestore
 
     fun addHabit(
-    userId: String,
-    name: String,
-    description: String,
-    repeat: List<String>,
-    reminder: LocalTime? = null,
-    startFrom: LocalDate,
-    currentStreak: Int = 0,
-    longestStreak: Int = 0,
-    totalPerfectDays: Int = 0,
-    totalTimesCompleted: Int = 0,
-    isReminder: Boolean = false,
-    isCompletedToday: Boolean = false,
-    context: Context,
+        userId: String,
+        name: String,
+        description: String,
+        repeat: List<String>,
+        reminder: LocalTime? = null,
+        startFrom: LocalDate,
+        currentStreak: Int = 0,
+        longestStreak: Int = 0,
+        totalPerfectDays: Int = 0,
+        totalTimesCompleted: Int = 0,
+        isReminder: Boolean = false,
+        isCompletedToday: Boolean = false,
+        context: Context,
     ) {
         val habitDocId = "$userId-$name"
 
@@ -79,8 +78,13 @@ class HabitViewModel : ViewModel() {
                 Toast.makeText(context, "Something Went Wrong", Toast.LENGTH_SHORT).show()
             }
     }
+
     // Method to schedule the notification with WorkManager
-    private fun scheduleNotificationWithWorkManager(context: Context, habitName: String, delayInMinutes: Long) {
+    private fun scheduleNotificationWithWorkManager(
+        context: Context,
+        habitName: String,
+        delayInMinutes: Long
+    ) {
         val data = Data.Builder()
             .putString("habit_name", habitName)
             .build()
@@ -94,6 +98,7 @@ class HabitViewModel : ViewModel() {
         // Use WorkManager to enqueue the work
         WorkManager.getInstance(context).enqueue(notificationWork)
     }
+
     suspend fun storeHabitsInMap(userId: String, date: LocalDate): List<Map<String, Boolean>> {
         val habits = mutableListOf<Map<String, Boolean>>()
 
@@ -105,7 +110,8 @@ class HabitViewModel : ViewModel() {
 
             habitsSnapshot.documents.forEach { document ->
                 val startFromStr = document.getString("startFrom") ?: return@forEach
-                val startFrom = LocalDate.parse(startFromStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                val startFrom =
+                    LocalDate.parse(startFromStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 val repeat = document.get("repeat")
 
                         as? List<String> ?: emptyList()
@@ -116,7 +122,8 @@ class HabitViewModel : ViewModel() {
                     repeat.contains("Everyday") && startFrom <= date -> {
                         habits.add(
                             mapOf(
-                                document.getString("name")!! to (document.getBoolean("isCompletedToday") ?: false)
+                                document.getString("name")!! to (document.getBoolean("isCompletedToday")
+                                    ?: false)
                             )
                         )
                     }
@@ -124,7 +131,8 @@ class HabitViewModel : ViewModel() {
                     repeat.contains(selectedDayOfWeek) && startFrom <= date -> {
                         habits.add(
                             mapOf(
-                                document.getString("name")!! to (document.getBoolean("isCompletedToday") ?: false)
+                                document.getString("name")!! to (document.getBoolean("isCompletedToday")
+                                    ?: false)
                             )
                         )
                     }
@@ -217,20 +225,27 @@ class HabitViewModel : ViewModel() {
                         val updates = hashMapOf<String, Any>(
                             "description" to description, // Update description
                             "repeat" to repeat, // Update repeat days
-                            "reminder" to (reminder?.toString() ?: ""), // Update reminder time or set to empty string if null
+                            "reminder" to (reminder?.toString()
+                                ?: ""), // Update reminder time or set to empty string if null
                             "startFrom" to startFrom.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) // Update start date with specific format
                         )
 
                         // Update the existing document with the new values
-                        db.collection("users").document(userId).collection("habits").document(habitDocId)
+                        db.collection("users").document(userId).collection("habits")
+                            .document(habitDocId)
                             .update(updates)
                             .addOnSuccessListener {
                                 // Show a success toast message upon successful update
-                                Toast.makeText(context, "Habit updated successfully", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Habit updated successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                             .addOnFailureListener {
                                 // Show a failure toast message if the update fails
-                                Toast.makeText(context, "Habit update failed", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Habit update failed", Toast.LENGTH_SHORT)
+                                    .show()
                             }
                     }
                 } else {
@@ -243,10 +258,6 @@ class HabitViewModel : ViewModel() {
                 Toast.makeText(context, "Error retrieving habit", Toast.LENGTH_SHORT).show()
             }
     }
-
-
-
-
 
 
     fun deleteHabit(userId: String, habitName: String, context: Context) {

@@ -54,9 +54,11 @@ import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddHabit(navController: NavHostController,
-             habitViewModel: HabitViewModel,
-             onRequestNotificationPermission: () -> Unit ) {
+fun AddHabit(
+    navController: NavHostController,
+    habitViewModel: HabitViewModel,
+    onRequestNotificationPermission: () -> Unit
+) {
     var habitName by remember { mutableStateOf("") }
     var isHabitNameValid by remember { mutableStateOf(true) }
     var habitDescription by remember { mutableStateOf("") }
